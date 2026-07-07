@@ -12,6 +12,7 @@ import { OutfitScreen } from "./features/outfit/OutfitScreen";
 import { KaiScreen } from "./features/kai/KaiScreen";
 import { SchedulerScreen } from "./features/scheduler/SchedulerScreen";
 import { SwapScreen } from "./features/swap/SwapScreen";
+import { ThriftScreen } from "./features/thrift/ThriftScreen";
 import { RankScreen } from "./features/rank/RankScreen";
 import { AnalyticsScreen } from "./features/analytics/AnalyticsScreen";
 import { DashboardScreen } from "./features/dashboard/DashboardScreen";
@@ -42,6 +43,7 @@ export default function App() {
   const [usage, setUsage] = usePersistentState("usage", {});
   const [settings, setSettings] = usePersistentState("settings", DEFAULT_SETTINGS);
   const [profile, setProfile] = usePersistentState("profile", null);
+  const [thriftOrders, setThriftOrders] = usePersistentState("thriftOrders", []);
 
   // Ephemeral UI state. `stack` is a tiny nav stack so Back works everywhere:
   // tabs reset it, drilling into a feature pushes onto it.
@@ -54,7 +56,7 @@ export default function App() {
     clearPersisted();
     setOnboarded(false); setItems([]); setSchedule([]); setSwapRequests([]); setChat([]);
     setLikes([]); setRankOptIn(null); setPlan("free"); setUsage({}); setDeposit(DEFAULT_DEPOSIT);
-    setSettings(DEFAULT_SETTINGS); setProfile(null);
+    setSettings(DEFAULT_SETTINGS); setProfile(null); setThriftOrders([]);
     setStack(["home"]);
   };
 
@@ -102,6 +104,7 @@ export default function App() {
         {route === "wardrobe" && <WardrobeScreen items={items} setItems={setItems} />}
         {route === "outfit" && <OutfitScreen items={items} setItems={setItems} likes={likes} setLikes={setLikes} plan={plan} usage={usage} useQuota={useQuota} onUpgrade={() => setPaywall({ reason: "Outfit Generate tanpa batas" })} />}
         {route === "swap" && <SwapScreen items={items} setItems={setItems} swapRequests={swapRequests} setSwapRequests={setSwapRequests} deposit={deposit} setDeposit={setDeposit} />}
+        {route === "thrift" && <ThriftScreen onBack={back} items={items} setItems={setItems} thriftOrders={thriftOrders} setThriftOrders={setThriftOrders} />}
         {route === "profile" && <ProfileScreen items={items} swapRequests={swapRequests} plan={plan} settings={settings} setSettings={setSettings} rankOptIn={rankOptIn} setRankOptIn={setRankOptIn} onNavigate={navTo} onUpgrade={() => setPaywall({ reason: "Buka semua fitur premium" })} onManageSub={() => setPaywall({ reason: "Kelola langganan ClosetCloud+" })} onSignOut={resetAll} onDeleteAccount={resetAll} onExport={exportData} />}
 
         {route === "kai" && <KaiScreen onBack={back} items={items} setItems={setItems} chat={chat} setChat={setChat} plan={plan} usage={usage} useQuota={useQuota} onUpgrade={() => setPaywall({ reason: "Chat Kai tanpa batas" })} />}

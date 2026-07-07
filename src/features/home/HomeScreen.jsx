@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Camera, Sparkles, Repeat, MessageCircle, CalendarDays, BarChart3, Sun, Cloud, CloudRain, ChevronRight, Bell, ArrowRight } from "lucide-react";
+import { Camera, Sparkles, Repeat, MessageCircle, Store, BarChart3, Sun, Cloud, CloudRain, ChevronRight, Bell, ArrowRight } from "lucide-react";
 import { T, fontDisplay } from "../../theme/tokens";
 import { Card, Button } from "../../components/ui";
 import { Logo } from "../../components/illustrations";
@@ -27,7 +27,7 @@ export function HomeScreen({ profile, items, swapRequests, onGo }) {
     { key: "outfit", label: "Outfit", icon: Sparkles, tint: T.lavender },
     { key: "swap", label: "Swap", icon: Repeat, tint: T.sage },
     { key: "kai", label: "Tanya Kai", icon: MessageCircle, tint: T.lavenderDeep },
-    { key: "scheduler", label: "Jadwal", icon: CalendarDays, tint: T.coral },
+    { key: "thrift", label: "Thrift", icon: Store, tint: T.coral },
     { key: "dashboard", label: "Insight", icon: BarChart3, tint: "#8FB8DE" },
   ];
 

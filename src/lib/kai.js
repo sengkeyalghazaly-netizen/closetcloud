@@ -10,6 +10,9 @@
  * client, and CORS blocks it), so we deliberately do NOT attempt it — that
  * only produced a guaranteed-failed request. Configure a proxy instead. */
 
+import { adForCategory } from "../data/thrift";
+import { suggestedPrice } from "../data/thrift";
+
 const KAI_ENDPOINT = import.meta.env.VITE_KAI_ENDPOINT || "";
 const KAI_MODEL = import.meta.env.VITE_KAI_MODEL || "claude-sonnet-4-5";
 
@@ -53,10 +56,10 @@ export function localKaiReply(items, userMessage) {
     const cand = [...items].sort((a, b) => a.wearCount - b.wearCount).filter((i) => i.wearCount <= 1);
     if (cand.length) { content = `Ada ${cand.length} item yang jarang kamu pakai dan bisa dipertimbangkan untuk didonasikan biar bermanfaat buat orang lain.`; cand.slice(0, 3).forEach((i) => cards.push({ type: "donate", item_id: i.id, reason: `Baru dipakai ${i.wearCount}× — kalau sudah tidak sreg, donasi bisa jadi pilihan baik.` })); }
     else content = "Semua bajumu masih cukup aktif dipakai — belum ada yang mendesak untuk didonasikan. Mantap!";
-  } else if (/jual/.test(msg)) {
+  } else if (/jual|thrift/.test(msg)) {
     const cand = [...items].sort((a, b) => b.price - a.price).filter((i) => i.wearCount <= 1);
-    if (cand.length) { content = "Beberapa item bernilai tapi jarang dipakai ini bisa kamu jual untuk kasih 'hidup kedua'."; cand.slice(0, 3).forEach((i) => cards.push({ type: "sell", item_id: i.id, reason: "Nilainya lumayan tapi jarang dipakai.", est_price: Math.round(i.price * 0.55) })); }
-    else content = "Belum ada item mahal yang menganggur untuk dijual. Koleksimu terpakai dengan baik.";
+    if (cand.length) { content = "Item bernilai tapi jarang dipakai ini cocok dijual di Thrift ClosetCloud — kasih 'hidup kedua' sekaligus balik modal."; cand.slice(0, 3).forEach((i) => cards.push({ type: "sell", item_id: i.id, reason: "Jarang dipakai — laku bagus di Thrift.", est_price: suggestedPrice(i.price) })); }
+    else content = "Belum ada item mahal yang menganggur untuk dijual. Koleksimu terpakai dengan baik!";
   } else if (/diy|upcycl/.test(msg)) {
     const i = byCat("Atasan")[0] || items[0];
     if (i) { content = `Coba upcycle ${i.name} biar makin fresh!`; cards.push({ type: "diy", item_id: i.id, idea: `Refresh ${i.name}`, steps: ["Tentukan bagian yang mau diubah (kerah/lengan/panjang).", "Potong rapi atau tambahkan patch/sablon sesuai selera.", "Finishing jahit tepi & cuci sebelum dipakai."] }); }
@@ -64,8 +67,12 @@ export function localKaiReply(items, userMessage) {
   } else if (/kurang|lengkap|tambah/.test(msg)) {
     const cats = new Set(items.map((i) => i.category));
     const missing = ["Bawahan", "Sepatu", "Outerwear"].filter((c) => !cats.has(c));
-    if (missing.length) { content = `Lemarimu belum punya ${missing.join(", ").toLowerCase()}. Sebelum beli baru, coba cari lewat thrift atau Swap Network dulu ya!`; missing.forEach((c) => cards.push({ type: "suggest_add", category: c, reason: `Kategori ${c} bisa melengkapi variasi outfitmu.`, thrift_first: true })); }
-    else content = "Lemarimu sudah cukup lengkap di semua kategori dasar. Fokus optimalkan yang ada dulu!";
+    if (missing.length) {
+      content = `Lemarimu belum punya ${missing.join(", ").toLowerCase()}. Cari lewat Thrift/Swap dulu ya — kalau memang mau baru, ini opsi dari partner.`;
+      missing.forEach((c) => cards.push({ type: "suggest_add", category: c, reason: `Kategori ${c} bisa melengkapi variasi outfitmu.`, thrift_first: true }));
+      const ad = adForCategory(missing[0]);
+      cards.push({ type: "shop", brand: ad.brand, item: ad.item, price: ad.price, category: missing[0], url: ad.url });
+    } else content = "Lemarimu sudah cukup lengkap di semua kategori dasar. Fokus optimalkan yang ada dulu!";
   } else {
     const tops = byCat("Atasan"), bottoms = byCat("Bawahan");
     if (tops.length && bottoms.length) {

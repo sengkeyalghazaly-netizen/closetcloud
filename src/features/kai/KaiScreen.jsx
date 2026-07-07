@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { MessageCircle, AlertTriangle, Send, Sparkles, Shirt, Check, HandHeart, Banknote, Scissors, Lightbulb } from "lucide-react";
+import { MessageCircle, AlertTriangle, Send, Sparkles, Shirt, Check, HandHeart, Banknote, Scissors, Lightbulb, Store } from "lucide-react";
 import { T } from "../../theme/tokens";
 import { Header, Card, Button } from "../../components/ui";
 import { QuotaBanner } from "../../components/QuotaBanner";
@@ -25,6 +25,19 @@ function ActionCardView({ card, items, setItems }) {
       </Card>
     );
   }
+  if (card.type === "shop") {
+    return (
+      <Card className="mt-2" style={{ border: "1.5px solid #E9EBF2" }}>
+        <div className="flex items-center gap-1.5 mb-1.5"><Store size={13} color={T.navySoft} /><p className="text-[11px] font-bold" style={{ color: T.navySoft }}>Partner ClosetCloud · {card.category}</p></div>
+        <div className="flex items-center gap-3">
+          <div className="w-11 h-11 rounded-xl flex items-center justify-center font-extrabold text-[10px] shrink-0" style={{ background: T.navy, color: "#fff" }}>{card.brand.slice(0, 3).toUpperCase()}</div>
+          <div className="flex-1 min-w-0"><p className="text-xs font-bold truncate" style={{ color: T.navy }}>{card.item}</p><p className="text-[11px]" style={{ color: T.navySoft }}>{card.brand} · Rp {Number(card.price).toLocaleString("id-ID")}</p></div>
+          <a href={card.url} target="_blank" rel="noopener noreferrer" className="cc-press px-3 py-1.5 rounded-xl text-xs font-bold shrink-0" style={{ background: T.mintLight, color: T.navy }}>Lihat</a>
+        </div>
+      </Card>
+    );
+  }
+
   const it = findItem(card.item_id);
   if (!it) return null;
 

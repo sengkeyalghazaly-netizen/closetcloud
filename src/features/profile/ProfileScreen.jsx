@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Sparkles, ShoppingBag, Wallet, BarChart3, MessageCircle, Bell, Moon, Sun, Settings, ShieldCheck, Download, Trash2, Crown, ChevronRight, HelpCircle, ChevronDown, Mail, LogOut, CalendarDays, Trophy } from "lucide-react";
+import { Sparkles, ShoppingBag, Wallet, BarChart3, MessageCircle, Bell, Moon, Sun, Settings, ShieldCheck, Download, Trash2, Crown, ChevronRight, HelpCircle, ChevronDown, Mail, LogOut, CalendarDays, Trophy, Store } from "lucide-react";
 import { T, fontDisplay } from "../../theme/tokens";
 import { Button, Toggle } from "../../components/ui";
 import { TierBadge } from "../../components/TierBadge";
@@ -93,6 +93,7 @@ export function ProfileScreen({ items, swapRequests, plan, settings, setSettings
         <p className="text-xs font-semibold mb-2" style={{ color: textSub }}>FITUR KAMU</p>
         <div className="flex flex-col gap-2">
           <QuickAction icon={MessageCircle} title="Kai — AI Stylist" sub="Minta saran gaya kapan saja" onClick={() => onNavigate("kai")} dark={dark} />
+          <QuickAction icon={Store} title="Thrift Market" sub="Jual & beli preloved" onClick={() => onNavigate("thrift")} dark={dark} />
           <QuickAction icon={CalendarDays} title="Outfit Scheduler" sub="Rencanakan outfit di kalender" onClick={() => onNavigate("scheduler")} dark={dark} />
           <QuickAction icon={Wallet} title="Cost Per Wear" sub="Nilai ekonomi tiap baju" onClick={() => onNavigate("analytics")} dark={dark} />
           <QuickAction icon={BarChart3} title="Style Insight" sub="Statistik & jejak karbon" onClick={() => onNavigate("dashboard")} dark={dark} />
