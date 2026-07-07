@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "closetcloud-dev",
+      "runtimeExecutable": "/Users/amaliasengkey/claudetest/.claude/run-dev.sh",
+      "runtimeArgs": [],
+      "port": 5173
+    },
+    {
+      "name": "closetcloud-preview",
+      "runtimeExecutable": "/Users/amaliasengkey/claudetest/.claude/run-preview.sh",
+      "runtimeArgs": [],
+      "port": 4173
+    }
+  ]
+}
