@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { Sparkles, ShoppingBag, Wallet, BarChart3, MessageCircle, Bell, Moon, Sun, Settings, ShieldCheck, Download, Trash2, Crown, ChevronRight, HelpCircle, ChevronDown, Mail, LogOut, CalendarDays, Trophy, Store } from "lucide-react";
+import { useState, useMemo, useRef } from "react";
+import { Sparkles, ShoppingBag, Wallet, BarChart3, MessageCircle, Bell, Moon, Sun, Settings, ShieldCheck, Download, Trash2, Crown, ChevronRight, HelpCircle, ChevronDown, Mail, LogOut, CalendarDays, Trophy, Store, Camera, Search } from "lucide-react";
 import { T, fontDisplay } from "../../theme/tokens";
 import { Button, Toggle } from "../../components/ui";
 import { TierBadge } from "../../components/TierBadge";
@@ -29,12 +29,33 @@ function QuickAction({ icon: Icon, title, sub, onClick, dark }) {
   );
 }
 
+function FollowStat({ n, label, dark }) {
+  return (
+    <div className="text-center px-2">
+      <p className="font-extrabold text-base leading-none" style={{ ...fontDisplay, color: dark ? "#fff" : T.navy }}>{n >= 1000 ? `${(n / 1000).toFixed(1)}rb` : n}</p>
+      <p className="text-[11px] mt-0.5" style={{ color: dark ? "rgba(255,255,255,0.6)" : T.navySoft }}>{label}</p>
+    </div>
+  );
+}
+
 /* ============ PROFILE & SETTINGS ============ */
-export function ProfileScreen({ items, swapRequests, plan, settings, setSettings, rankOptIn, setRankOptIn, onNavigate, onUpgrade, onManageSub, onSignOut, onDeleteAccount, onExport }) {
+export function ProfileScreen({ profile, setProfile, follows = [], items, swapRequests, plan, settings, setSettings, rankOptIn, setRankOptIn, onNavigate, onUpgrade, onManageSub, onSignOut, onDeleteAccount, onExport }) {
   const [faqOpen, setFaqOpen] = useState(null);
   const [confirmSignOut, setConfirmSignOut] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(0);
+  const avatarRef = useRef(null);
   const dark = settings.appearance === "dark";
+
+  const name = profile?.name || "Kamu";
+  const email = profile?.email || "kamu@closetcloud.id";
+  const initials = name.trim().split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase() || "K";
+  const followers = 128 + follows.length * 3; // mock, tumbuh saat kamu aktif
+  const changeAvatar = (file) => {
+    if (!file || !file.type.startsWith("image/") || !setProfile) return;
+    const reader = new FileReader();
+    reader.onload = (e) => setProfile({ ...(profile || {}), avatar: e.target.result });
+    reader.readAsDataURL(file);
+  };
 
   const score = useMemo(() => computeStyleScore(items), [items]);
   const outfitsGenerated = items.reduce((s, i) => s + i.wearCount, 0);
@@ -59,13 +80,25 @@ export function ProfileScreen({ items, swapRequests, plan, settings, setSettings
       {/* Header akun */}
       <div className="px-4">
         <div className="rounded-3xl p-5" style={{ background: dark ? "#252A4D" : `linear-gradient(135deg, ${T.mintLight}, #F3EEFB)` }}>
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-16 h-16 rounded-full flex items-center justify-center text-2xl" style={{ background: `linear-gradient(135deg, ${T.mint}, ${T.lavender})` }}>😎</div>
-            <div className="flex-1">
-              <p className="font-bold text-lg" style={{ ...fontDisplay, color: textMain }}>Kamu</p>
-              <p className="text-sm" style={{ color: textSub }}>kamu@closetcloud.id</p>
+          <input ref={avatarRef} type="file" accept="image/*" className="hidden" onChange={(e) => changeAvatar(e.target.files[0])} />
+          <div className="flex items-center gap-4 mb-3">
+            <button onClick={() => avatarRef.current?.click()} className="cc-press relative w-[68px] h-[68px] rounded-full overflow-hidden flex items-center justify-center font-extrabold text-xl shrink-0" style={{ ...fontDisplay, background: profile?.avatar ? "transparent" : `linear-gradient(135deg, ${T.mint}, ${T.lavender})`, color: T.navy }}>
+              {profile?.avatar ? <img src={profile.avatar} className="w-full h-full object-cover" /> : initials}
+              <span className="absolute bottom-0 right-0 w-6 h-6 rounded-full flex items-center justify-center" style={{ background: T.navy, border: "2px solid #fff" }}><Camera size={11} color="#fff" /></span>
+            </button>
+            <div className="flex-1 min-w-0">
+              <p className="font-bold text-lg truncate" style={{ ...fontDisplay, color: textMain }}>{name}</p>
+              <p className="text-sm truncate" style={{ color: textSub }}>{email}</p>
             </div>
           </div>
+          {/* followers / following */}
+          <button onClick={() => onNavigate("discover")} className="cc-press w-full flex items-center justify-around rounded-2xl py-2.5 mb-3" style={{ background: dark ? "#1B1F3B" : "rgba(255,255,255,.55)" }}>
+            <FollowStat n={items.length} label="item" dark={dark} />
+            <div className="w-px h-7" style={{ background: dark ? "#333858" : "#E3E6F0" }} />
+            <FollowStat n={followers} label="pengikut" dark={dark} />
+            <div className="w-px h-7" style={{ background: dark ? "#333858" : "#E3E6F0" }} />
+            <FollowStat n={follows.length} label="mengikuti" dark={dark} />
+          </button>
           <div className="flex gap-2 flex-wrap">
             {plan === "premium" ? (
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full" style={{ background: `linear-gradient(135deg, ${T.mint}, ${T.lavender})` }}>
@@ -92,6 +125,7 @@ export function ProfileScreen({ items, swapRequests, plan, settings, setSettings
       <div className="px-4 mt-4">
         <p className="text-xs font-semibold mb-2" style={{ color: textSub }}>FITUR KAMU</p>
         <div className="flex flex-col gap-2">
+          <QuickAction icon={Search} title="Cari & Ikuti Pengguna" sub="Jelajah gaya komunitas" onClick={() => onNavigate("discover")} dark={dark} />
           <QuickAction icon={MessageCircle} title="Kai — AI Stylist" sub="Minta saran gaya kapan saja" onClick={() => onNavigate("kai")} dark={dark} />
           <QuickAction icon={Store} title="Thrift Market" sub="Jual & beli preloved" onClick={() => onNavigate("thrift")} dark={dark} />
           <QuickAction icon={CalendarDays} title="Outfit Scheduler" sub="Rencanakan outfit di kalender" onClick={() => onNavigate("scheduler")} dark={dark} />
@@ -141,6 +175,13 @@ export function ProfileScreen({ items, swapRequests, plan, settings, setSettings
             <span className="text-sm" style={{ color: textSub }}>Terima permintaan swap</span>
             <Toggle on={settings.allowSwap} onChange={() => set("allowSwap", !settings.allowSwap)} />
           </div>
+          <p className="text-[11px] font-semibold mt-2 mb-1" style={{ color: textSub }}>Data yang dipublikasikan</p>
+          {[["pubWardrobe", "Lemari bisa dilihat publik"], ["pubCity", "Tampilkan kota"], ["pubStats", "Tampilkan statistik gaya"]].map(([k, l]) => (
+            <div key={k} className="flex items-center justify-between py-1.5">
+              <span className="text-sm" style={{ color: textSub }}>{l}</span>
+              <Toggle on={settings[k] !== false} onChange={() => set(k, settings[k] === false ? true : false)} />
+            </div>
+          ))}
           <button onClick={onExport} className="w-full flex items-center gap-2 py-2 mt-1"><Download size={15} color={textSub} /><span className="text-sm" style={{ color: textSub }}>Unduh data saya (JSON)</span></button>
           <button onClick={() => setConfirmDelete(1)} className="w-full flex items-center gap-2 py-2"><Trash2 size={15} color={T.coral} /><span className="text-sm font-medium" style={{ color: T.coral }}>Hapus akun</span></button>
         </div>

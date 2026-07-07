@@ -13,6 +13,8 @@ import { KaiScreen } from "./features/kai/KaiScreen";
 import { SchedulerScreen } from "./features/scheduler/SchedulerScreen";
 import { SwapScreen } from "./features/swap/SwapScreen";
 import { ThriftScreen } from "./features/thrift/ThriftScreen";
+import { DiscoverScreen } from "./features/social/DiscoverScreen";
+import { UserProfileScreen } from "./features/social/UserProfileScreen";
 import { RankScreen } from "./features/rank/RankScreen";
 import { AnalyticsScreen } from "./features/analytics/AnalyticsScreen";
 import { DashboardScreen } from "./features/dashboard/DashboardScreen";
@@ -24,7 +26,7 @@ import { PaywallSheet } from "./features/premium/PaywallSheet";
  * screens, and the freemium quota gate. Each screen is self-contained under
  * src/features/*, so adding a new one is: build the screen, add a tab entry. */
 
-const DEFAULT_SETTINGS = { notifOutfit: true, notifSwap: true, notifEvent: true, appearance: "light", allowSwap: true };
+const DEFAULT_SETTINGS = { notifOutfit: true, notifSwap: true, notifEvent: true, appearance: "light", allowSwap: true, pubWardrobe: true, pubCity: true, pubStats: true };
 const DEFAULT_DEPOSIT = 200000;
 
 export default function App() {
@@ -44,10 +46,12 @@ export default function App() {
   const [settings, setSettings] = usePersistentState("settings", DEFAULT_SETTINGS);
   const [profile, setProfile] = usePersistentState("profile", null);
   const [thriftOrders, setThriftOrders] = usePersistentState("thriftOrders", []);
+  const [follows, setFollows] = usePersistentState("follows", []);
 
   // Ephemeral UI state. `stack` is a tiny nav stack so Back works everywhere:
   // tabs reset it, drilling into a feature pushes onto it.
   const [paywall, setPaywall] = useState(null); // {reason} atau null
+  const [viewUser, setViewUser] = useState(null);
   const [stack, setStack] = useState(["home"]);
 
   const dark = settings.appearance === "dark";
@@ -56,7 +60,7 @@ export default function App() {
     clearPersisted();
     setOnboarded(false); setItems([]); setSchedule([]); setSwapRequests([]); setChat([]);
     setLikes([]); setRankOptIn(null); setPlan("free"); setUsage({}); setDeposit(DEFAULT_DEPOSIT);
-    setSettings(DEFAULT_SETTINGS); setProfile(null); setThriftOrders([]);
+    setSettings(DEFAULT_SETTINGS); setProfile(null); setThriftOrders([]); setFollows([]);
     setStack(["home"]);
   };
 
@@ -105,7 +109,9 @@ export default function App() {
         {route === "outfit" && <OutfitScreen items={items} setItems={setItems} likes={likes} setLikes={setLikes} plan={plan} usage={usage} useQuota={useQuota} onUpgrade={() => setPaywall({ reason: "Outfit Generate tanpa batas" })} />}
         {route === "swap" && <SwapScreen items={items} setItems={setItems} swapRequests={swapRequests} setSwapRequests={setSwapRequests} deposit={deposit} setDeposit={setDeposit} />}
         {route === "thrift" && <ThriftScreen onBack={back} items={items} setItems={setItems} thriftOrders={thriftOrders} setThriftOrders={setThriftOrders} />}
-        {route === "profile" && <ProfileScreen items={items} swapRequests={swapRequests} plan={plan} settings={settings} setSettings={setSettings} rankOptIn={rankOptIn} setRankOptIn={setRankOptIn} onNavigate={navTo} onUpgrade={() => setPaywall({ reason: "Buka semua fitur premium" })} onManageSub={() => setPaywall({ reason: "Kelola langganan ClosetCloud+" })} onSignOut={resetAll} onDeleteAccount={resetAll} onExport={exportData} />}
+        {route === "discover" && <DiscoverScreen onBack={back} follows={follows} setFollows={setFollows} onOpenUser={(u) => { setViewUser(u); setStack((s) => [...s, "user"]); }} />}
+        {route === "user" && <UserProfileScreen user={viewUser} follows={follows} setFollows={setFollows} onBack={back} />}
+        {route === "profile" && <ProfileScreen profile={profile} setProfile={setProfile} follows={follows} items={items} swapRequests={swapRequests} plan={plan} settings={settings} setSettings={setSettings} rankOptIn={rankOptIn} setRankOptIn={setRankOptIn} onNavigate={navTo} onUpgrade={() => setPaywall({ reason: "Buka semua fitur premium" })} onManageSub={() => setPaywall({ reason: "Kelola langganan ClosetCloud+" })} onSignOut={resetAll} onDeleteAccount={resetAll} onExport={exportData} />}
 
         {route === "kai" && <KaiScreen onBack={back} items={items} setItems={setItems} chat={chat} setChat={setChat} plan={plan} usage={usage} useQuota={useQuota} onUpgrade={() => setPaywall({ reason: "Chat Kai tanpa batas" })} />}
         {route === "scheduler" && <SchedulerScreen onBack={back} items={items} schedule={schedule} setSchedule={setSchedule} />}

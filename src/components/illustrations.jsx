@@ -146,6 +146,68 @@ export function StyleThumb({ styleKey, size = 96 }) {
   );
 }
 
+/* Product-style garment depiction by category + colour — jauh lebih
+ * "tergambarkan" daripada ikon polos. Dipakai di Swap & listing komunitas. */
+export function GarmentImage({ category, color, size = "w-full h-36" }) {
+  const c = color?.hex || "#9AA0B4";
+  const bg = "#F1F2F7";
+  return (
+    <div className={`${size} rounded-2xl overflow-hidden relative`} style={{ background: `linear-gradient(160deg, ${bg}, #E7E9F1)` }}>
+      <svg viewBox="0 0 100 100" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <linearGradient id="gm-shade" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="rgba(255,255,255,0.35)" /><stop offset="0.5" stopColor="rgba(255,255,255,0)" /><stop offset="1" stopColor="rgba(0,0,0,0.14)" />
+          </linearGradient>
+        </defs>
+        <CategoryGarment category={category} c={c} />
+      </svg>
+    </div>
+  );
+}
+
+function CategoryGarment({ category, c }) {
+  const shade = "url(#gm-shade)";
+  if (category === "Bawahan") return (
+    <g>
+      <path d="M34 24h32l4 52-14 2-6-38-6 38-14-2z" fill={c} />
+      <path d="M34 24h32l4 52-14 2-6-38-6 38-14-2z" fill={shade} />
+      <rect x="34" y="22" width="32" height="7" rx="2" fill="rgba(0,0,0,0.18)" />
+    </g>
+  );
+  if (category === "Sepatu") return (
+    <g>
+      <path d="M20 58c0-8 6-12 14-14l8 6 22 2c6 1 12 3 14 8v6H20z" fill={c} />
+      <path d="M20 58c0-8 6-12 14-14l8 6 22 2c6 1 12 3 14 8v6H20z" fill={shade} />
+      <rect x="18" y="66" width="64" height="6" rx="3" fill="rgba(0,0,0,0.28)" />
+      <path d="M40 50l4 3 6-2" stroke="rgba(255,255,255,0.5)" strokeWidth="2" fill="none" />
+    </g>
+  );
+  if (category === "Outerwear") return (
+    <g>
+      <path d="M32 24l-12 8 5 12 6-3v34h38V41l6 3 5-12-12-8-9 6-6-6-6 6z" fill={c} />
+      <path d="M32 24l-12 8 5 12 6-3v34h38V41l6 3 5-12-12-8-9 6-6-6-6 6z" fill={shade} />
+      <line x1="50" y1="28" x2="50" y2="75" stroke="rgba(0,0,0,0.28)" strokeWidth="2.5" />
+      <path d="M44 26l6 6 6-6" fill="rgba(255,255,255,0.35)" />
+    </g>
+  );
+  if (category === "Aksesori") return (
+    <g>
+      <path d="M36 40c0-8 6-12 14-12s14 4 14 12" fill="none" stroke={c} strokeWidth="4" />
+      <rect x="30" y="40" width="40" height="34" rx="8" fill={c} />
+      <rect x="30" y="40" width="40" height="34" rx="8" fill={shade} />
+      <rect x="44" y="52" width="12" height="6" rx="3" fill="rgba(0,0,0,0.2)" />
+    </g>
+  );
+  // Atasan (default)
+  return (
+    <g>
+      <path d="M36 26l-14 9 6 13 7-4v30h30V44l7 4 6-13-14-9-11 7z" fill={c} />
+      <path d="M36 26l-14 9 6 13 7-4v30h30V44l7 4 6-13-14-9-11 7z" fill={shade} />
+      <path d="M39 27l11 8 11-8" fill="none" stroke="rgba(0,0,0,0.18)" strokeWidth="2" />
+    </g>
+  );
+}
+
 function GarmentSilhouette({ shape, c }) {
   switch (shape) {
     case "hoodie":

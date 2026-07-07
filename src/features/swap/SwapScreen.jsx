@@ -4,6 +4,7 @@ import { T, fontDisplay } from "../../theme/tokens";
 import { Header, Card, Chip, Button, EmptyState } from "../../components/ui";
 import { MOCK_USERS, MOCK_SWAP_ITEMS, DEPOSIT_AMOUNT } from "../../data/mock";
 import { CATEGORIES } from "../../data/reference";
+import { GarmentImage } from "../../components/illustrations";
 
 function VerifyPhotoModal({ item, onClose, onVerified }) {
   const [photos, setPhotos] = useState([]);
@@ -80,12 +81,9 @@ function VerifyPhotoModal({ item, onClose, onVerified }) {
   );
 }
 
-function GarmentPlaceholder({ hex, size = "w-full h-32" }) {
-  return (
-    <div className={`${size} rounded-xl flex items-center justify-center`} style={{ background: hex }}>
-      <Shirt size={26} color="rgba(27,31,59,0.35)" />
-    </div>
-  );
+/* thin wrapper: depiksi garmen "foto produk" berdasarkan kategori + warna */
+function GarmentPlaceholder({ item, size = "w-full h-32" }) {
+  return <GarmentImage category={item?.category} color={item?.color} size={size} />;
 }
 
 function StatusBadge({ status }) {
@@ -109,7 +107,7 @@ function SwapItemDetailModal({ item, allItems, onClose, onRequest, requesting })
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" style={{ background: "rgba(27,31,59,0.55)" }}>
       <div className="w-full sm:max-w-sm rounded-t-3xl sm:rounded-3xl p-5" style={{ background: T.bg }}>
         <div className="flex justify-end"><button onClick={onClose} className="p-2 rounded-full" style={{ background: T.white }}><X size={18} /></button></div>
-        <GarmentPlaceholder hex={item.color.hex} size="w-full h-48" />
+        <GarmentPlaceholder item={item} size="w-full h-48" />
         <div className="flex items-center gap-2 mt-2">
           <p className="font-bold text-lg" style={{ ...fontDisplay, color: T.navy }}>{item.name}</p>
           {item.verified ? (
@@ -156,7 +154,7 @@ function SwapItemDetailModal({ item, allItems, onClose, onRequest, requesting })
                 <div className="flex gap-2">
                   {alternatives.map((a) => (
                     <div key={a.id} className="flex-1 rounded-xl p-2" style={{ background: T.white, border: "1px solid #E3E6F0" }}>
-                      <GarmentPlaceholder hex={a.color.hex} size="w-full h-16" />
+                      <GarmentPlaceholder item={a} size="w-full h-16" />
                       <p className="text-xs font-medium mt-1 truncate" style={{ color: T.navy }}>{a.name}</p>
                     </div>
                   ))}
@@ -272,7 +270,7 @@ export function SwapScreen({ items, setItems, swapRequests, setSwapRequests, dep
             <div className="grid grid-cols-2 gap-3">
               {feed.map((item) => (
                 <div key={item.id} onClick={() => setSelectedItem(item)} className="rounded-2xl overflow-hidden cursor-pointer relative" style={{ background: T.white, boxShadow: "0 6px 18px -10px rgba(27,31,59,0.2)" }}>
-                  <GarmentPlaceholder hex={item.color.hex} />
+                  <GarmentPlaceholder item={item} />
                   {item.locked && (
                     <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-xs font-semibold" style={{ background: T.coral, color: T.white }}>Dipinjam</div>
                   )}
@@ -332,7 +330,7 @@ export function SwapScreen({ items, setItems, swapRequests, setSwapRequests, dep
               {swapRequests.map((r) => (
                 <Card key={r.id}>
                   <div className="flex gap-3">
-                    <GarmentPlaceholder hex={r.item.color.hex} size="w-14 h-14" />
+                    <GarmentPlaceholder item={r.item} size="w-14 h-14" />
                     <div className="flex-1">
                       <p className="text-sm font-semibold" style={{ color: T.navy }}>{r.item.name}</p>
                       <p className="text-xs mb-1.5" style={{ color: T.navySoft }}>dari {r.item.owner.name} · {r.item.owner.city}</p>
