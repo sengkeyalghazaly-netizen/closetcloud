@@ -40,15 +40,16 @@ export const QUIZ_QUESTIONS = [
   { q: "Berapa kira-kira budget fashion kamu per bulan?", opts: ["< Rp 300rb", "Rp 300rb–700rb", "Rp 700rb–1,5jt", "> Rp 1,5jt"] },
 ];
 
-/* --- Outfit Generator v2: Mood × Tempat × Style --- */
+/* --- Outfit Generator v2: Mood × Tempat × Style. `dot` = warna representasi
+ * mood (dipakai jadi indikator kecil, bukan emoji). --- */
 export const MOODS = [
-  { key: "Percaya Diri", emoji: "🔥", colors: ["Merah Bata", "Hitam", "Navy"] },
-  { key: "Santai", emoji: "😌", colors: ["Putih", "Krem", "Abu-abu"] },
-  { key: "Profesional", emoji: "💼", colors: ["Navy", "Hitam", "Putih"] },
-  { key: "Playful", emoji: "🎉", colors: ["Mint", "Lavender"] },
-  { key: "Romantis", emoji: "💐", colors: ["Lavender", "Krem", "Putih"] },
-  { key: "Edgy", emoji: "🖤", colors: ["Hitam", "Abu-abu"] },
-  { key: "Cozy", emoji: "☁️", colors: ["Krem", "Cokelat", "Abu-abu"] },
+  { key: "Percaya Diri", dot: "#B5533C", colors: ["Merah Bata", "Hitam", "Navy"] },
+  { key: "Santai", dot: "#E7DCC8", colors: ["Putih", "Krem", "Abu-abu"] },
+  { key: "Profesional", dot: "#22304A", colors: ["Navy", "Hitam", "Putih"] },
+  { key: "Playful", dot: "#7FD8BE", colors: ["Mint", "Lavender"] },
+  { key: "Romantis", dot: "#C9B8E8", colors: ["Lavender", "Krem", "Putih"] },
+  { key: "Edgy", dot: "#232323", colors: ["Hitam", "Abu-abu"] },
+  { key: "Cozy", dot: "#8B5E3C", colors: ["Krem", "Cokelat", "Abu-abu"] },
 ];
 export const PLACES = [
   { key: "Kampus", style: "Kasual" }, { key: "Kantor", style: "Formal" },
