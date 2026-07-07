@@ -75,7 +75,7 @@ function SuggestAddCard({ card }) {
 }
 
 /* ============ AI CHAT STYLIST "KAI" ============ */
-export function KaiScreen({ items, setItems, chat, setChat, plan, usage, useQuota, onUpgrade }) {
+export function KaiScreen({ items, setItems, chat, setChat, plan, usage, useQuota, onUpgrade, onBack }) {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [failedMsg, setFailedMsg] = useState(null);
@@ -106,7 +106,7 @@ export function KaiScreen({ items, setItems, chat, setChat, plan, usage, useQuot
 
   return (
     <div className="pb-24 flex flex-col" style={{ height: "100vh" }}>
-      <Header title="Kai — AI Stylist" subtitle="Tanya apa saja soal lemarimu" />
+      <Header title="Kai — AI Stylist" subtitle="Tanya apa saja soal lemarimu" onBack={onBack} />
       <QuotaBanner remaining={left} limit={FREE_LIMITS.ai_chat} label="pesan Kai" onUpgrade={onUpgrade} />
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 pb-4">
         {chat.length === 0 && !loading && (

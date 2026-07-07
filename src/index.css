@@ -8,4 +8,95 @@
 body {
   margin: 0;
   background: #F7F8FC;
+  overscroll-behavior-y: none;
+}
+
+/* ============ MOTION SYSTEM ============
+ * Reusable, meaningful animations. Applied via className so any screen can
+ * opt in without bespoke CSS. Keep them subtle — this is polish, not noise. */
+
+@keyframes cc-fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes cc-pop-in {
+  0%   { opacity: 0; transform: scale(0.9); }
+  60%  { opacity: 1; transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+@keyframes cc-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+@keyframes cc-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes cc-gradient-pan {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+@keyframes cc-pulse-ring {
+  0%   { transform: scale(0.85); opacity: 0.7; }
+  70%  { transform: scale(1.25); opacity: 0; }
+  100% { opacity: 0; }
+}
+@keyframes cc-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes cc-sheen {
+  0%   { transform: translateX(-120%); }
+  60%, 100% { transform: translateX(220%); }
+}
+@keyframes cc-scanline {
+  0%   { top: 4%; opacity: 0; }
+  15%  { opacity: 1; }
+  85%  { opacity: 1; }
+  100% { top: 92%; opacity: 0; }
+}
+.cc-scanline { animation: cc-scanline 1.5s ease-in-out infinite; }
+
+.cc-fade-up   { animation: cc-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+.cc-pop-in    { animation: cc-pop-in 0.45s cubic-bezier(0.34,1.56,0.64,1) both; }
+.cc-float     { animation: cc-float 4s ease-in-out infinite; }
+.cc-spin      { animation: cc-spin 0.9s linear infinite; }
+.cc-pulse-ring{ animation: cc-pulse-ring 1.6s ease-out infinite; }
+
+/* stagger helpers for lists/cards entering */
+.cc-stagger > * { animation: cc-fade-up 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+.cc-stagger > *:nth-child(1){ animation-delay: .03s }
+.cc-stagger > *:nth-child(2){ animation-delay: .08s }
+.cc-stagger > *:nth-child(3){ animation-delay: .13s }
+.cc-stagger > *:nth-child(4){ animation-delay: .18s }
+.cc-stagger > *:nth-child(5){ animation-delay: .23s }
+.cc-stagger > *:nth-child(6){ animation-delay: .28s }
+.cc-stagger > *:nth-child(7){ animation-delay: .33s }
+.cc-stagger > *:nth-child(8){ animation-delay: .38s }
+
+/* animated brand gradient (hero / accents) */
+.cc-gradient-move {
+  background-size: 200% 200%;
+  animation: cc-gradient-pan 6s ease infinite;
+}
+
+/* press feedback for tappable things */
+.cc-press { transition: transform .12s cubic-bezier(0.34,1.56,0.64,1), box-shadow .2s ease; }
+.cc-press:active { transform: scale(0.95); }
+
+/* sheen swipe used on primary CTAs */
+.cc-sheen { position: relative; overflow: hidden; }
+.cc-sheen::after {
+  content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 40%;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,0.55), transparent);
+  transform: translateX(-120%);
+}
+.cc-sheen:hover::after { animation: cc-sheen 0.9s ease; }
+
+/* hide scrollbars on horizontal chip rows while keeping scroll */
+.cc-noscroll::-webkit-scrollbar { display: none; }
+.cc-noscroll { -ms-overflow-style: none; scrollbar-width: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cc-fade-up, .cc-pop-in, .cc-float, .cc-spin, .cc-pulse-ring,
+  .cc-gradient-move, .cc-stagger > * { animation: none !important; }
 }

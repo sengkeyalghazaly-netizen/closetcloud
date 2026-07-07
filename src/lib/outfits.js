@@ -21,8 +21,8 @@ export function deriveStyleTags(item) {
   return tags;
 }
 
-/* Outfit Generator v2: kombinasi Mood × Tempat × Style global. */
-export function generateOutfitsV2(items, weatherKey, place, mood, styleGlobal) {
+/* Outfit Generator v2: kombinasi Mood × Tempat × Style × Warna. */
+export function generateOutfitsV2(items, weatherKey, place, mood, styleGlobal, colorPref) {
   const baseStyle = PLACES.find((pl) => pl.key === place)?.style || "Kasual";
   const moodDef = MOODS.find((mo) => mo.key === mood) || MOODS[0];
 
@@ -36,8 +36,9 @@ export function generateOutfitsV2(items, weatherKey, place, mood, styleGlobal) {
       const byTag = list.filter((i) => deriveStyleTags(i).includes(styleGlobal));
       if (byTag.length) list = byTag; else tagMatched = false;
     }
-    // preferensi mood: item dengan warna mood didahulukan
-    list = [...list].sort((a, b) => (moodDef.colors.includes(b.color.name) ? 1 : 0) - (moodDef.colors.includes(a.color.name) ? 1 : 0));
+    // skor: warna pilihan user diutamakan, lalu warna khas mood
+    const score = (i) => (colorPref && i.color.name === colorPref ? 3 : 0) + (moodDef.colors.includes(i.color.name) ? 1 : 0);
+    list = [...list].sort((a, b) => score(b) - score(a));
     return { list, tagMatched };
   };
 
@@ -47,6 +48,7 @@ export function generateOutfitsV2(items, weatherKey, place, mood, styleGlobal) {
   if (tops.list.length === 0 || bottoms.list.length === 0) return { combos: [], partial: false };
 
   const partial = styleGlobal !== "Semua" && !(tops.tagMatched && bottoms.tagMatched);
+  const temp = WEATHER_OPTIONS.find((w) => w.key === weatherKey).temp;
   const combos = [];
   const n = Math.min(3, tops.list.length * bottoms.list.length);
   for (let i = 0; i < n; i++) {
@@ -57,7 +59,7 @@ export function generateOutfitsV2(items, weatherKey, place, mood, styleGlobal) {
     const acc = accessory.length ? accessory[i % accessory.length] : null;
     combos.push({
       id: `v2-${i}`, top, bottom, shoe, outer, acc,
-      reason: `${moodDef.emoji} Vibe ${mood.toLowerCase()} untuk ${place}${styleGlobal !== "Semua" ? ` gaya ${styleGlobal}` : ""} — ${top.color.name.toLowerCase()} × ${bottom.color.name.toLowerCase()} cocok di cuaca ${WEATHER_OPTIONS.find((w) => w.key === weatherKey).temp}.`,
+      reason: `Vibe ${mood.toLowerCase()} untuk ${place}${styleGlobal !== "Semua" ? ` · ${styleGlobal}` : ""}${colorPref ? ` · aksen ${colorPref.toLowerCase()}` : ""} — ${top.color.name.toLowerCase()} × ${bottom.color.name.toLowerCase()}, pas di cuaca ${temp}.`,
     });
   }
   return { combos, partial };

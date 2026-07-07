@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Sparkles, ShoppingBag, Wallet, BarChart3, MessageCircle, Bell, Moon, Sun, Settings, ShieldCheck, Download, Trash2, Crown, ChevronRight, HelpCircle, ChevronDown, Mail, LogOut } from "lucide-react";
+import { Sparkles, ShoppingBag, Wallet, BarChart3, MessageCircle, Bell, Moon, Sun, Settings, ShieldCheck, Download, Trash2, Crown, ChevronRight, HelpCircle, ChevronDown, Mail, LogOut, CalendarDays, Trophy } from "lucide-react";
 import { T, fontDisplay } from "../../theme/tokens";
 import { Button, Toggle } from "../../components/ui";
 import { TierBadge } from "../../components/TierBadge";
@@ -88,13 +88,15 @@ export function ProfileScreen({ items, swapRequests, plan, settings, setSettings
         <StatCard icon={Wallet} label="Money Saved" value={`Rp${(moneySaved / 1000).toFixed(0)}rb`} dark={dark} />
       </div>
 
-      {/* Quick actions */}
+      {/* Fitur */}
       <div className="px-4 mt-4">
-        <p className="text-xs font-semibold mb-2" style={{ color: textSub }}>AKSI CEPAT</p>
+        <p className="text-xs font-semibold mb-2" style={{ color: textSub }}>FITUR KAMU</p>
         <div className="flex flex-col gap-2">
-          <QuickAction icon={BarChart3} title="View Analytics" sub="Lihat insight lemarimu" onClick={() => onNavigate("dashboard")} dark={dark} />
-          <QuickAction icon={Wallet} title="Cost Per Wear" sub="Lacak penghematanmu" onClick={() => onNavigate("analytics")} dark={dark} />
-          <QuickAction icon={MessageCircle} title="AI Chat Stylist" sub="Minta saran gaya ke Kai" onClick={() => onNavigate("kai")} dark={dark} />
+          <QuickAction icon={MessageCircle} title="Kai — AI Stylist" sub="Minta saran gaya kapan saja" onClick={() => onNavigate("kai")} dark={dark} />
+          <QuickAction icon={CalendarDays} title="Outfit Scheduler" sub="Rencanakan outfit di kalender" onClick={() => onNavigate("scheduler")} dark={dark} />
+          <QuickAction icon={Wallet} title="Cost Per Wear" sub="Nilai ekonomi tiap baju" onClick={() => onNavigate("analytics")} dark={dark} />
+          <QuickAction icon={BarChart3} title="Style Insight" sub="Statistik & jejak karbon" onClick={() => onNavigate("dashboard")} dark={dark} />
+          <QuickAction icon={Trophy} title="Style Rank" sub="Peringkat gaya komunitas" onClick={() => onNavigate("rank")} dark={dark} />
         </div>
       </div>
 

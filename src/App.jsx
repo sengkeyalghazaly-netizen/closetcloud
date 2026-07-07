@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { ShoppingBag, Shirt, MessageCircle, Trophy, CalendarDays, Repeat, Wallet, BarChart3, User, Filter } from "lucide-react";
+import { Home, ShoppingBag, Sparkles, Repeat, User } from "lucide-react";
 
 import { T, fontBody, useFonts } from "./theme/tokens";
 import { usePersistentState, clearPersisted } from "./store/persist";
 import { remaining, todayKey } from "./lib/utils";
 
 import { Onboarding } from "./features/onboarding/Onboarding";
+import { HomeScreen } from "./features/home/HomeScreen";
 import { WardrobeScreen } from "./features/wardrobe/WardrobeScreen";
 import { OutfitScreen } from "./features/outfit/OutfitScreen";
 import { KaiScreen } from "./features/kai/KaiScreen";
@@ -40,11 +41,12 @@ export default function App() {
   const [plan, setPlan] = usePersistentState("plan", "free");
   const [usage, setUsage] = usePersistentState("usage", {});
   const [settings, setSettings] = usePersistentState("settings", DEFAULT_SETTINGS);
+  const [profile, setProfile] = usePersistentState("profile", null);
 
-  // Ephemeral UI state.
+  // Ephemeral UI state. `stack` is a tiny nav stack so Back works everywhere:
+  // tabs reset it, drilling into a feature pushes onto it.
   const [paywall, setPaywall] = useState(null); // {reason} atau null
-  const [tab, setTab] = useState("wardrobe");
-  const [moreOpen, setMoreOpen] = useState(false);
+  const [stack, setStack] = useState(["home"]);
 
   const dark = settings.appearance === "dark";
 
@@ -52,8 +54,8 @@ export default function App() {
     clearPersisted();
     setOnboarded(false); setItems([]); setSchedule([]); setSwapRequests([]); setChat([]);
     setLikes([]); setRankOptIn(null); setPlan("free"); setUsage({}); setDeposit(DEFAULT_DEPOSIT);
-    setSettings(DEFAULT_SETTINGS);
-    setTab("wardrobe"); setMoreOpen(false);
+    setSettings(DEFAULT_SETTINGS); setProfile(null);
+    setStack(["home"]);
   };
 
   const exportData = () => {
@@ -75,66 +77,51 @@ export default function App() {
   };
 
   if (!onboarded) {
-    return <Onboarding onFinish={(seedItems) => { setItems(seedItems); setOnboarded(true); }} />;
+    return <Onboarding onFinish={(seedItems, userProfile) => { setItems(seedItems); if (userProfile) setProfile(userProfile); setOnboarded(true); }} />;
   }
 
-  const mainTabs = [
+  const NAV = [
+    { key: "home", label: "Home", icon: Home },
     { key: "wardrobe", label: "Lemari", icon: ShoppingBag },
-    { key: "outfit", label: "Outfit", icon: Shirt },
-    { key: "kai", label: "Kai", icon: MessageCircle },
-    { key: "rank", label: "Rank", icon: Trophy },
-  ];
-  const moreTabs = [
-    { key: "scheduler", label: "Jadwal", icon: CalendarDays },
+    { key: "outfit", label: "Outfit", icon: Sparkles },
     { key: "swap", label: "Swap", icon: Repeat },
-    { key: "analytics", label: "Biaya", icon: Wallet },
-    { key: "dashboard", label: "Insight", icon: BarChart3 },
     { key: "profile", label: "Profil", icon: User },
   ];
+  const route = stack[stack.length - 1];
+  const rootTab = stack[0];
+  const isMainTab = (r) => NAV.some((n) => n.key === r);
+  const setTab = (t) => setStack([t]);
+  const back = () => setStack((s) => (s.length > 1 ? s.slice(0, -1) : s));
+  // Main tabs switch tab; sub-features push onto the stack so Back returns here.
+  const navTo = (r) => (isMainTab(r) ? setTab(r) : setStack((s) => [...s, r]));
 
   return (
     <div className="min-h-screen" style={{ background: dark ? "#1B1F3B" : T.bg, ...fontBody }}>
       <div className="max-w-md mx-auto min-h-screen relative" style={{ background: dark ? "#1B1F3B" : T.bg }}>
-        {tab === "wardrobe" && <WardrobeScreen items={items} setItems={setItems} />}
-        {tab === "outfit" && <OutfitScreen items={items} setItems={setItems} likes={likes} setLikes={setLikes} plan={plan} usage={usage} useQuota={useQuota} onUpgrade={() => setPaywall({ reason: "Outfit Generate tanpa batas" })} />}
-        {tab === "kai" && <KaiScreen items={items} setItems={setItems} chat={chat} setChat={setChat} plan={plan} usage={usage} useQuota={useQuota} onUpgrade={() => setPaywall({ reason: "Chat Kai tanpa batas" })} />}
-        {tab === "scheduler" && <SchedulerScreen items={items} schedule={schedule} setSchedule={setSchedule} />}
-        {tab === "swap" && <SwapScreen items={items} setItems={setItems} swapRequests={swapRequests} setSwapRequests={setSwapRequests} deposit={deposit} setDeposit={setDeposit} />}
-        {tab === "rank" && <RankScreen items={items} optIn={rankOptIn} setOptIn={setRankOptIn} />}
-        {tab === "analytics" && <AnalyticsScreen items={items} />}
-        {tab === "dashboard" && <DashboardScreen items={items} swapRequests={swapRequests} />}
-        {tab === "profile" && <ProfileScreen items={items} swapRequests={swapRequests} plan={plan} settings={settings} setSettings={setSettings} rankOptIn={rankOptIn} setRankOptIn={setRankOptIn} onNavigate={(t) => setTab(t)} onUpgrade={() => setPaywall({ reason: "Buka semua fitur premium" })} onManageSub={() => setPaywall({ reason: "Kelola langganan ClosetCloud+" })} onSignOut={resetAll} onDeleteAccount={resetAll} onExport={exportData} />}
+        {route === "home" && <HomeScreen profile={profile} items={items} swapRequests={swapRequests} onGo={navTo} />}
+        {route === "wardrobe" && <WardrobeScreen items={items} setItems={setItems} />}
+        {route === "outfit" && <OutfitScreen items={items} setItems={setItems} likes={likes} setLikes={setLikes} plan={plan} usage={usage} useQuota={useQuota} onUpgrade={() => setPaywall({ reason: "Outfit Generate tanpa batas" })} />}
+        {route === "swap" && <SwapScreen items={items} setItems={setItems} swapRequests={swapRequests} setSwapRequests={setSwapRequests} deposit={deposit} setDeposit={setDeposit} />}
+        {route === "profile" && <ProfileScreen items={items} swapRequests={swapRequests} plan={plan} settings={settings} setSettings={setSettings} rankOptIn={rankOptIn} setRankOptIn={setRankOptIn} onNavigate={navTo} onUpgrade={() => setPaywall({ reason: "Buka semua fitur premium" })} onManageSub={() => setPaywall({ reason: "Kelola langganan ClosetCloud+" })} onSignOut={resetAll} onDeleteAccount={resetAll} onExport={exportData} />}
 
-        {moreOpen && (
-          <div className="fixed inset-0 z-40 flex items-end max-w-md mx-auto" style={{ background: "rgba(27,31,59,0.4)" }} onClick={() => setMoreOpen(false)}>
-            <div className="w-full rounded-t-3xl p-5 pb-8" style={{ background: T.bg }} onClick={(e) => e.stopPropagation()}>
-              <div className="w-10 h-1 rounded-full mx-auto mb-4" style={{ background: "#D8DBE8" }} />
-              <p className="font-bold text-sm mb-3" style={{ color: T.navy }}>Menu Lainnya</p>
-              <div className="grid grid-cols-4 gap-3">
-                {moreTabs.map((t) => (
-                  <button key={t.key} onClick={() => { setTab(t.key); setMoreOpen(false); }} className="flex flex-col items-center gap-1.5 py-2">
-                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: tab === t.key ? T.mintLight : T.white, border: "1px solid #E3E6F0" }}>
-                      <t.icon size={20} color={tab === t.key ? T.lavenderDeep : T.navySoft} />
-                    </div>
-                    <span className="text-[11px] font-medium text-center" style={{ color: T.navy }}>{t.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
+        {route === "kai" && <KaiScreen onBack={back} items={items} setItems={setItems} chat={chat} setChat={setChat} plan={plan} usage={usage} useQuota={useQuota} onUpgrade={() => setPaywall({ reason: "Chat Kai tanpa batas" })} />}
+        {route === "scheduler" && <SchedulerScreen onBack={back} items={items} schedule={schedule} setSchedule={setSchedule} />}
+        {route === "analytics" && <AnalyticsScreen onBack={back} items={items} />}
+        {route === "dashboard" && <DashboardScreen onBack={back} items={items} swapRequests={swapRequests} />}
+        {route === "rank" && <RankScreen onBack={back} items={items} optIn={rankOptIn} setOptIn={setRankOptIn} />}
 
-        <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto flex justify-around items-center py-2.5 px-1" style={{ background: dark ? "#252A4D" : T.white, borderTop: dark ? "1px solid #333858" : "1px solid #E3E6F0" }}>
-          {mainTabs.map((t) => (
-            <button key={t.key} onClick={() => setTab(t.key)} className="flex flex-col items-center gap-1 px-1.5 flex-1">
-              <t.icon size={20} color={tab === t.key ? T.lavenderDeep : "#A3A8C0"} />
-              <span className="text-[10px] font-semibold" style={{ color: tab === t.key ? T.navy : "#A3A8C0" }}>{t.label}</span>
-            </button>
-          ))}
-          <button onClick={() => setMoreOpen(true)} className="flex flex-col items-center gap-1 px-1.5 flex-1">
-            <Filter size={20} color={moreTabs.some((t) => t.key === tab) ? T.lavenderDeep : "#A3A8C0"} />
-            <span className="text-[10px] font-semibold" style={{ color: moreTabs.some((t) => t.key === tab) ? T.navy : "#A3A8C0" }}>Lainnya</span>
-          </button>
+        <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto flex justify-around items-center py-2.5 px-1" style={{ background: dark ? "#252A4D" : T.white, borderTop: dark ? "1px solid #333858" : "1px solid #E3E6F0", boxShadow: "0 -8px 24px -18px rgba(27,31,59,.4)" }}>
+          {NAV.map((t) => {
+            const on = rootTab === t.key;
+            return (
+              <button key={t.key} onClick={() => setTab(t.key)} className="cc-press flex flex-col items-center gap-1 px-1.5 flex-1">
+                <span className="w-9 h-9 rounded-2xl flex items-center justify-center transition-colors" style={{ background: on ? T.mintLight : "transparent" }}>
+                  <t.icon size={20} color={on ? T.lavenderDeep : "#A3A8C0"} />
+                </span>
+                <span className="text-[10px] font-semibold" style={{ color: on ? T.navy : "#A3A8C0" }}>{t.label}</span>
+              </button>
+            );
+          })}
         </div>
 
         {paywall && <PaywallSheet reason={paywall.reason} onClose={() => setPaywall(null)} onUpgrade={() => setPlan("premium")} />}

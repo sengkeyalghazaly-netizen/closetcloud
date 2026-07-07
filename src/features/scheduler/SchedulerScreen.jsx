@@ -160,7 +160,7 @@ function DayDetailModal({ date, items, schedule, setSchedule, onClose }) {
   );
 }
 
-export function SchedulerScreen({ items, schedule, setSchedule }) {
+export function SchedulerScreen({ items, schedule, setSchedule, onBack }) {
   const [viewDate, setViewDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
   const cells = useMemo(() => buildMonthGrid(viewDate), [viewDate]);
@@ -168,7 +168,7 @@ export function SchedulerScreen({ items, schedule, setSchedule }) {
 
   return (
     <div className="pb-24">
-      <Header title="Outfit Scheduler" subtitle="Rencanakan outfit seperti kalender" />
+      <Header title="Outfit Scheduler" subtitle="Rencanakan outfit seperti kalender" onBack={onBack} />
       <div className="px-4">
         <Card>
           <div className="flex items-center justify-between mb-3">

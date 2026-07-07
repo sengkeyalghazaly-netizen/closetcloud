@@ -18,19 +18,25 @@ export const T = {
   white: "#FFFFFF",
 };
 
-export const fontDisplay = { fontFamily: "'Sora', sans-serif" };
+/* Display = Clash Display (Fontshare) — geometric, fashion-forward, memorable.
+ * Body = Plus Jakarta Sans (humanist, very readable for Indonesian copy). */
+export const fontDisplay = { fontFamily: "'Clash Display', 'Sora', sans-serif" };
 export const fontBody = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 
 /* Loads brand webfonts once (idempotent). */
 export function useFonts() {
   useEffect(() => {
-    const id = "cc-fonts";
-    if (document.getElementById(id)) return;
-    const link = document.createElement("link");
-    link.id = id;
-    link.rel = "stylesheet";
-    link.href =
-      "https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap";
-    document.head.appendChild(link);
+    const links = [
+      { id: "cc-fonts-google", href: "https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" },
+      { id: "cc-fonts-clash", href: "https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&display=swap" },
+    ];
+    links.forEach(({ id, href }) => {
+      if (document.getElementById(id)) return;
+      const link = document.createElement("link");
+      link.id = id;
+      link.rel = "stylesheet";
+      link.href = href;
+      document.head.appendChild(link);
+    });
   }, []);
 }

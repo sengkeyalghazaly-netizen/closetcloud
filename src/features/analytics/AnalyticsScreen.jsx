@@ -3,7 +3,7 @@ import { T, fontDisplay } from "../../theme/tokens";
 import { Header, Card, EmptyState } from "../../components/ui";
 
 /* ============ ANALYTICS SCREEN (Cost-Per-Wear) ============ */
-export function AnalyticsScreen({ items }) {
+export function AnalyticsScreen({ items, onBack }) {
   const withCpw = items.map((i) => ({ ...i, cpw: i.wearCount > 0 ? i.price / i.wearCount : null }))
     .sort((a, b) => (b.cpw ?? Infinity) - (a.cpw ?? Infinity));
 
@@ -13,7 +13,7 @@ export function AnalyticsScreen({ items }) {
 
   return (
     <div className="pb-24">
-      <Header title="Cost-Per-Wear" subtitle="Nilai ekonomi tiap baju, real-time" />
+      <Header title="Cost-Per-Wear" subtitle="Nilai ekonomi tiap baju, real-time" onBack={onBack} />
       {items.length === 0 ? (
         <EmptyState icon={Wallet} title="Belum ada data" subtitle="Scan baju & mulai pakai outfit dulu supaya analitik muncul di sini." action={null} />
       ) : (

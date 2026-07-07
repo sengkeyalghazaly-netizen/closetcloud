@@ -25,7 +25,7 @@ function MiniBarChart({ items }) {
   );
 }
 
-export function DashboardScreen({ items, swapRequests }) {
+export function DashboardScreen({ items, swapRequests, onBack }) {
   const [copied, setCopied] = useState(false);
   const completedSwaps = swapRequests.filter((r) => r.status === "selesai").length;
   const totalWears = items.reduce((s, i) => s + i.wearCount, 0);
@@ -47,7 +47,7 @@ export function DashboardScreen({ items, swapRequests }) {
   if (items.length === 0) {
     return (
       <div className="pb-24">
-        <Header title="Style Insight" subtitle="Statistik & jejak karbon lemarimu" />
+        <Header title="Style Insight" subtitle="Statistik & jejak karbon lemarimu" onBack={onBack} />
         <EmptyState icon={BarChart3} title="Belum ada data" subtitle="Scan baju dan mulai pakai outfit dulu supaya insight-nya muncul di sini." action={null} />
       </div>
     );

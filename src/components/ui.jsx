@@ -1,13 +1,16 @@
 import { T, fontDisplay, fontBody } from "../theme/tokens";
+import { sound } from "../lib/sound";
 
 /* ============ SHARED UI PRIMITIVES ============
- * Small, presentational building blocks used across every feature. */
+ * Small, presentational building blocks used across every feature.
+ * Tappable primitives play a soft sound + press animation for that
+ * "alive, app-like" feel (respects the global sound toggle). */
 
 export function Chip({ active, onClick, children, color }) {
   return (
     <button
-      onClick={onClick}
-      className="px-3 py-1.5 rounded-full text-sm font-medium border transition-all whitespace-nowrap"
+      onClick={onClick ? (e) => { sound.tap(); onClick(e); } : undefined}
+      className="cc-press px-3 py-1.5 rounded-full text-sm font-medium border transition-all whitespace-nowrap"
       style={{
         background: active ? (color || T.mint) : T.white,
         borderColor: active ? (color || T.mint) : "#E3E6F0",
@@ -19,17 +22,20 @@ export function Chip({ active, onClick, children, color }) {
   );
 }
 
-export function Button({ children, onClick, variant = "primary", full, disabled, icon: Icon, style }) {
-  const base = "flex items-center justify-center gap-2 rounded-2xl px-5 py-3 font-semibold transition-transform active:scale-95 disabled:opacity-40 disabled:active:scale-100";
+export function Button({ children, onClick, variant = "primary", full, disabled, icon: Icon, style, silent }) {
+  const base = "cc-press cc-sheen flex items-center justify-center gap-2 rounded-2xl px-5 py-3 font-semibold disabled:opacity-40";
   const variants = {
     primary: { background: `linear-gradient(135deg, ${T.mint}, ${T.lavender})`, color: T.navy },
     outline: { background: T.white, color: T.navy, border: `1.5px solid ${T.lavender}` },
     ghost: { background: "transparent", color: T.navySoft },
     dark: { background: T.navy, color: T.white },
   };
+  const handle = onClick
+    ? (e) => { if (!silent) (variant === "primary" || variant === "dark" ? sound.select() : sound.tap()); onClick(e); }
+    : undefined;
   return (
     <button
-      onClick={onClick}
+      onClick={handle}
       disabled={disabled}
       className={`${base} ${full ? "w-full" : ""}`}
       style={{ ...variants[variant], ...fontBody, ...style }}
@@ -64,12 +70,30 @@ export function EmptyState({ icon: Icon, title, subtitle, action }) {
   );
 }
 
-export function Header({ title, subtitle }) {
+export function Header({ title, subtitle, onBack, right }) {
   return (
     <div className="px-4 pt-6 pb-4">
-      <p className="font-extrabold text-2xl" style={{ ...fontDisplay, color: T.navy }}>{title}</p>
-      <p className="text-sm" style={{ color: T.navySoft }}>{subtitle}</p>
+      <div className="flex items-center gap-2.5">
+        {onBack && (
+          <button onClick={() => { sound.tap(); onBack(); }} className="cc-press w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ background: T.white, boxShadow: "0 4px 12px -6px rgba(27,31,59,.25)" }} aria-label="Kembali">
+            <BackChevron />
+          </button>
+        )}
+        <div className="flex-1 min-w-0">
+          <p className="font-extrabold text-2xl truncate" style={{ ...fontDisplay, color: T.navy }}>{title}</p>
+          <p className="text-sm" style={{ color: T.navySoft }}>{subtitle}</p>
+        </div>
+        {right}
+      </div>
     </div>
+  );
+}
+
+function BackChevron() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <path d="M15 5l-7 7 7 7" stroke={T.navy} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
 
