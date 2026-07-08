@@ -31,9 +31,23 @@ export function usePersistentState(key, initial) {
 
 export function clearPersisted() {
   try {
+    // biarkan flag "seeded" tetap ada supaya demo tidak ter-seed ulang saat
+    // user sengaja reset (Keluar / Hapus akun) → onboarding tetap bersih.
     Object.keys(localStorage)
-      .filter((k) => k.startsWith(PREFIX))
+      .filter((k) => k.startsWith(PREFIX) && k !== PREFIX + "seeded")
       .forEach((k) => localStorage.removeItem(k));
+  } catch {
+    /* ignore */
+  }
+}
+
+/* Tulis state demo satu kali saja (first run). Dipanggil sebelum React mount
+ * agar usePersistentState langsung membaca nilai yang sudah terisi. */
+export function seedOnce(state) {
+  try {
+    if (localStorage.getItem(PREFIX + "seeded")) return;
+    Object.entries(state).forEach(([k, v]) => localStorage.setItem(PREFIX + k, JSON.stringify(v)));
+    localStorage.setItem(PREFIX + "seeded", "1");
   } catch {
     /* ignore */
   }
