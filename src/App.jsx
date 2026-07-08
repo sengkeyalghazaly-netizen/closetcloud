@@ -113,13 +113,13 @@ export default function App() {
       <div className="max-w-md mx-auto min-h-screen relative" style={{ background: dark ? "#1B1F3B" : T.bg }}>
         {route === "home" && <HomeScreen profile={profile} items={items} swapRequests={swapRequests} onGo={navTo} />}
         {route === "wardrobe" && <WardrobeScreen items={items} setItems={setItems} />}
-        {route === "outfit" && <OutfitScreen items={items} setItems={setItems} likes={likes} setLikes={setLikes} plan={plan} usage={usage} useQuota={useQuota} adsLeft={adsLeft} watchAd={watchAd} onUpgrade={() => setPaywall({ reason: "Outfit Generate tanpa batas" })} />}
+        {route === "outfit" && <OutfitScreen items={items} setItems={setItems} likes={likes} setLikes={setLikes} plan={plan} usage={usage} useQuota={useQuota} adsLeft={adsLeft} watchAd={watchAd} avatarUrl={profile?.avatarUrl} onUpgrade={() => setPaywall({ reason: "Outfit Generate tanpa batas" })} />}
         {route === "swap" && <SwapScreen items={items} setItems={setItems} swapRequests={swapRequests} setSwapRequests={setSwapRequests} deposit={deposit} setDeposit={setDeposit} />}
         {route === "thrift" && <ThriftScreen onBack={back} items={items} setItems={setItems} thriftOrders={thriftOrders} setThriftOrders={setThriftOrders} />}
         {route === "community" && <CommunityScreen onBack={back} items={items} optIn={rankOptIn} setOptIn={setRankOptIn} follows={follows} setFollows={setFollows} onOpenUser={(u) => { setViewUser(u); setStack((s) => [...s, "user"]); }} />}
         {route === "user" && <UserProfileScreen user={viewUser} follows={follows} setFollows={setFollows} onBack={back} />}
         {route === "profile" && <ProfileScreen profile={profile} setProfile={setProfile} follows={follows} items={items} swapRequests={swapRequests} plan={plan} settings={settings} onNavigate={navTo} />}
-        {route === "settings" && <SettingsScreen onBack={back} settings={settings} setSettings={setSettings} plan={plan} rankOptIn={rankOptIn} setRankOptIn={setRankOptIn} onUpgrade={() => setPaywall({ reason: "Buka semua fitur premium" })} onManageSub={() => setPaywall({ reason: "Kelola langganan ClosetCloud+" })} onExport={exportData} onSignOut={resetAll} onDeleteAccount={resetAll} />}
+        {route === "settings" && <SettingsScreen onBack={back} profile={profile} setProfile={setProfile} settings={settings} setSettings={setSettings} plan={plan} rankOptIn={rankOptIn} setRankOptIn={setRankOptIn} onUpgrade={() => setPaywall({ reason: "Buka semua fitur premium" })} onManageSub={() => setPaywall({ reason: "Kelola langganan ClosetCloud+" })} onExport={exportData} onSignOut={resetAll} onDeleteAccount={resetAll} />}
 
         {route === "kai" && <KaiScreen onBack={back} items={items} setItems={setItems} chat={chat} setChat={setChat} plan={plan} usage={usage} useQuota={useQuota} onUpgrade={() => setPaywall({ reason: "Chat Kai tanpa batas" })} />}
         {route === "scheduler" && <SchedulerScreen onBack={back} items={items} schedule={schedule} setSchedule={setSchedule} />}

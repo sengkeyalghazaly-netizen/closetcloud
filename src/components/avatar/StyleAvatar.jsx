@@ -1,12 +1,13 @@
-import { Component, useRef, useMemo } from "react";
+import { Component, Suspense, useRef, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, ContactShadows } from "@react-three/drei";
 import { BaseBody } from "./BaseBody";
 import { Garment } from "./Garment";
+import { RPMFigure } from "./RPMFigure";
 import { outfitToProfiles } from "../../lib/avatar/renderProfile";
 import { useQualityTier } from "../../hooks/useQualityTier";
 
-/* Napas + sway halus pada seluruh figur (idle). */
+/* Napas + sway halus (idle) untuk figur prosedural. */
 function IdleGroup({ children }) {
   const ref = useRef();
   const t = useRef(0);
@@ -20,7 +21,6 @@ function IdleGroup({ children }) {
   return <group ref={ref}>{children}</group>;
 }
 
-/* Kelompok garment untuk satu look; animasi "pop-in" saat look berganti. */
 function LookGroup({ profiles, skin, quality }) {
   const ref = useRef();
   const s = useRef(0.9);
@@ -34,38 +34,53 @@ function LookGroup({ profiles, skin, quality }) {
   );
 }
 
-function Scene({ outfit, skin, tier, controlsRef }) {
+/* Figur prosedural (dipakai langsung, atau sebagai fallback avatar RPM). */
+function ProceduralFigure({ outfit, skin, quality }) {
   const profiles = useMemo(() => outfitToProfiles(outfit), [outfit]);
   const lookKey = useMemo(() => profiles.map((p) => p.key).join("|"), [profiles]);
+  return <IdleGroup><LookGroup key={lookKey} profiles={profiles} skin={skin} quality={quality} /></IdleGroup>;
+}
+
+/* Boundary khusus kegagalan load GLB RPM → render fallback (figur prosedural). */
+class GltfBoundary extends Component {
+  constructor(p) { super(p); this.state = { failed: false }; }
+  static getDerivedStateFromError() { return { failed: true }; }
+  componentDidCatch(e) { /* eslint-disable-next-line no-console */ console.warn("RPM avatar gagal, pakai fallback prosedural:", e?.message); }
+  render() { return this.state.failed ? this.props.fallback : this.props.children; }
+}
+
+function Scene({ outfit, skin, tier, avatarUrl, controlsRef }) {
+  const procedural = <ProceduralFigure outfit={outfit} skin={skin} quality={tier} />;
   return (
     <>
-      <hemisphereLight args={["#ffffff", "#dfe3f0", 0.9]} />
-      <ambientLight intensity={0.3} />
-      <directionalLight position={[3, 6, 4]} intensity={1.15} castShadow={tier !== "low"} shadow-mapSize={[1024, 1024]} />
-      <directionalLight position={[-4, 2, -3]} intensity={0.4} color="#C9B8E8" />
-      <IdleGroup>
-        <LookGroup key={lookKey} profiles={profiles} skin={skin} quality={tier} />
-      </IdleGroup>
-      {tier !== "low" && <ContactShadows position={[0, 0.01, 0]} opacity={0.4} scale={4} blur={2.6} far={2} color="#1B1F3B" />}
-      <OrbitControls ref={controlsRef} makeDefault enablePan={false} enableZoom minDistance={2.2} maxDistance={4.2}
-        autoRotate autoRotateSpeed={1.4} enableDamping dampingFactor={0.08}
-        minPolarAngle={Math.PI * 0.4} maxPolarAngle={Math.PI * 0.58} target={[0, 0.95, 0]} />
+      {/* studio 3-point (bukan ambient datar) untuk kesan premium */}
+      <hemisphereLight args={["#ffffff", "#d7dcec", 0.55]} />
+      <ambientLight intensity={0.22} />
+      <directionalLight position={[3, 6, 4]} intensity={1.35} castShadow={tier !== "low"} shadow-mapSize={[1024, 1024]} shadow-bias={-0.0004} />
+      <directionalLight position={[-4, 2, 2]} intensity={0.5} color="#E7EAF6" />
+      <directionalLight position={[0, 3, -5]} intensity={0.75} color="#C9B8E8" />
+      {avatarUrl ? (
+        <GltfBoundary fallback={procedural}>
+          <Suspense fallback={null}><RPMFigure url={avatarUrl} /></Suspense>
+        </GltfBoundary>
+      ) : procedural}
+      {tier !== "low" && <ContactShadows position={[0, 0.01, 0]} opacity={0.42} scale={4} blur={2.6} far={2} color="#1B1F3B" />}
+      <OrbitControls ref={controlsRef} makeDefault enablePan={false} enableZoom minDistance={2.0} maxDistance={4.4}
+        autoRotate autoRotateSpeed={1.3} enableDamping dampingFactor={0.08}
+        minPolarAngle={Math.PI * 0.36} maxPolarAngle={Math.PI * 0.58} target={[0, 0.95, 0]} />
     </>
   );
 }
 
-/* Error boundary: kalau WebGL gagal / konteks hilang → fallback rapi, tidak crash. */
+/* Boundary katastrofik: WebGL gagal total → panel fallback (bukan kanvas kosong). */
 class AvatarBoundary extends Component {
   constructor(p) { super(p); this.state = { failed: false }; }
   static getDerivedStateFromError() { return { failed: true }; }
   componentDidCatch(e) { /* eslint-disable-next-line no-console */ console.warn("Avatar 3D fallback:", e?.message); }
-  render() {
-    if (this.state.failed) return this.props.fallback;
-    return this.props.children;
-  }
+  render() { return this.state.failed ? this.props.fallback : this.props.children; }
 }
 
-export function StyleAvatar({ outfit, bodyConfig, quality = "auto", height = 320 }) {
+export function StyleAvatar({ outfit, avatarUrl, bodyConfig, quality = "auto", height = 320 }) {
   const tier = useQualityTier(quality);
   const controlsRef = useRef();
   const skin = bodyConfig?.skin || "#E8C6A2";
@@ -81,7 +96,7 @@ export function StyleAvatar({ outfit, bodyConfig, quality = "auto", height = 320
     <div style={{ width: "100%", height, touchAction: "none" }} onDoubleClick={() => controlsRef.current?.reset?.()}>
       <AvatarBoundary fallback={fallback}>
         <Canvas shadows={tier !== "low"} dpr={tier === "low" ? [1, 1] : [1, 1.8]} camera={{ position: [0, 1.15, 3.0], fov: 33 }} gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}>
-          <Scene outfit={outfit} skin={skin} tier={tier} controlsRef={controlsRef} />
+          <Scene outfit={outfit} skin={skin} tier={tier} avatarUrl={avatarUrl} controlsRef={controlsRef} />
         </Canvas>
       </AvatarBoundary>
     </div>

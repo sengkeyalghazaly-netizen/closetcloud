@@ -16,7 +16,7 @@ import { sound } from "../../lib/sound";
 
 const WEATHER_ICON = { panas: Sun, sejuk: Cloud, hujan: CloudRain };
 
-export function OutfitScreen({ items, setItems, likes, setLikes, plan, usage, useQuota, adsLeft, watchAd, onUpgrade }) {
+export function OutfitScreen({ items, setItems, likes, setLikes, plan, usage, useQuota, adsLeft, watchAd, avatarUrl, onUpgrade }) {
   const [showAds, setShowAds] = useState(false);
   const [weatherKey, setWeatherKey] = useState("sejuk");
   const [weatherInfo, setWeatherInfo] = useState(null);
@@ -185,7 +185,7 @@ export function OutfitScreen({ items, setItems, likes, setLikes, plan, usage, us
                     ))}
                   </div>
                   <div className="relative" style={{ background: `linear-gradient(160deg, ${T.mintLight}, #F3EEFB)` }}>
-                    <StyleAvatar outfit={combo} bodyConfig={{ skin: "#E8C6A2" }} height={360} />
+                    <StyleAvatar outfit={combo} avatarUrl={avatarUrl} bodyConfig={{ skin: "#E8C6A2" }} height={360} />
                     <button onClick={() => toggleLike(combo)} className="cc-press absolute top-3 right-3 w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,.85)" }}>
                       <Heart size={18} color={T.coral} fill={likes.includes(likeKey(combo)) ? T.coral : "none"} />
                     </button>

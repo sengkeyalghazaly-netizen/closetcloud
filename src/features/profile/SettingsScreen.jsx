@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { Bell, Moon, Sun, Settings as Cog, ShieldCheck, Download, Trash2, Crown, HelpCircle, ChevronDown, Mail, LogOut, ChevronRight } from "lucide-react";
+import { Bell, Moon, Sun, Settings as Cog, ShieldCheck, Download, Trash2, Crown, HelpCircle, ChevronDown, Mail, LogOut, ChevronRight, User, ExternalLink } from "lucide-react";
 import { T, fontDisplay } from "../../theme/tokens";
 import { Header, Button, Toggle } from "../../components/ui";
 import { FAQ_ITEMS } from "../../data/mock";
 
 /* Semua pengaturan terpusat di sini — dilepas dari Profil agar Profil fokus &
  * tidak membingungkan. */
-export function SettingsScreen({ settings, setSettings, plan, rankOptIn, setRankOptIn, onUpgrade, onManageSub, onExport, onSignOut, onDeleteAccount, onBack }) {
+export function SettingsScreen({ profile, setProfile, settings, setSettings, plan, rankOptIn, setRankOptIn, onUpgrade, onManageSub, onExport, onSignOut, onDeleteAccount, onBack }) {
   const [faqOpen, setFaqOpen] = useState(null);
   const [confirmSignOut, setConfirmSignOut] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(0);
@@ -45,6 +45,28 @@ export function SettingsScreen({ settings, setSettings, plan, rankOptIn, setRank
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Avatar Realistis (Ready Player Me) */}
+        <div className="rounded-2xl p-4" style={{ background: cardBg, border: dark ? "none" : "1px solid #E3E6F0" }}>
+          <div className="flex items-center gap-2 mb-2"><User size={16} color={T.lavenderDeep} /><p className="text-sm font-semibold" style={{ color: textMain }}>Avatar Realistis 3D</p></div>
+          <p className="text-xs mb-2.5" style={{ color: textSub }}>Tempel URL avatar Ready Player Me (.glb) — bikin gratis dari selfie di readyplayer.me. Dipakai di layar Outfit. Kosongkan = avatar bawaan (offline-safe).</p>
+          <input
+            value={profile?.avatarUrl || ""}
+            onChange={(e) => setProfile({ ...(profile || {}), avatarUrl: e.target.value.trim() || undefined })}
+            placeholder="https://models.readyplayer.me/xxxxxxxx.glb"
+            className="w-full px-3.5 py-2.5 rounded-xl outline-none text-[13px]" style={{ background: dark ? "#1B1F3B" : "#F7F8FC", border: "1px solid #E3E6F0", color: textMain }} />
+          <div className="flex items-center gap-2 mt-2.5">
+            <a href="https://readyplayer.me/avatar" target="_blank" rel="noopener noreferrer" className="cc-press flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold" style={{ background: T.navy, color: "#fff" }}>
+              Buat avatar <ExternalLink size={12} />
+            </a>
+            {profile?.avatarUrl && (
+              <button onClick={() => setProfile({ ...(profile || {}), avatarUrl: undefined })} className="cc-press text-xs font-semibold px-3 py-1.5 rounded-xl" style={{ color: T.coral }}>Pakai bawaan</button>
+            )}
+          </div>
+          {profile?.avatarUrl
+            ? <p className="text-[11px] mt-2 flex items-center gap-1" style={{ color: T.sage }}><ShieldCheck size={12} />Avatar RPM aktif (butuh internet; otomatis fallback bila gagal load).</p>
+            : <p className="text-[11px] mt-2" style={{ color: textSub }}>Sedang pakai avatar bawaan yang menggambarkan outfit dari atribut lemarimu.</p>}
         </div>
 
         {/* Privasi */}
