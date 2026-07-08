@@ -1,10 +1,10 @@
 import { useState, useMemo, useEffect } from "react";
-import { RefreshCw, Sparkles, Heart, Shirt, Check, Lightbulb, Sun, Cloud, CloudRain, TrendingUp, MapPin } from "lucide-react";
+import { RefreshCw, Sparkles, Heart, Shirt, Check, Lightbulb, Sun, Cloud, CloudRain, TrendingUp, MapPin, MoveHorizontal } from "lucide-react";
 import { T, fontDisplay } from "../../theme/tokens";
 import { Header, Card, Chip, Button, EmptyState } from "../../components/ui";
 import { QuotaBanner } from "../../components/QuotaBanner";
 import { RewardedAdModal } from "../premium/RewardedAdModal";
-import { MannequinStage } from "../../components/Mannequin";
+import { Avatar3D } from "../../components/Avatar3D";
 import { PersonPhoto } from "../../components/illustrations";
 import { WEATHER_OPTIONS, PLACES, MOODS, GLOBAL_STYLES, COLORS_POOL, STYLE_THEME } from "../../data/reference";
 import { TRENDS } from "../../data/trends";
@@ -174,24 +174,23 @@ export function OutfitScreen({ items, setItems, likes, setLikes, plan, usage, us
             <div className="flex flex-col gap-3.5 cc-stagger">
               {outfits.map((combo, idx) => (
                 <div key={combo.id} className="cc-pop-in rounded-3xl overflow-hidden" style={{ background: T.white, boxShadow: "0 14px 34px -22px rgba(27,31,59,.4)" }}>
-                  <div className="flex gap-3 p-4" style={{ background: `linear-gradient(135deg, ${idx % 2 ? "#F3EEFB" : T.mintLight}, #FFFFFF)` }}>
-                    <div className="shrink-0"><MannequinStage outfit={combo} size={116} /></div>
-                    <div className="flex-1 flex flex-col">
-                      <div className="flex items-start justify-between">
-                        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold" style={{ background: theme?.accent || T.navy, color: "#fff", fontFamily: theme?.font || undefined }}>Look {idx + 1}</span>
-                        <button onClick={() => toggleLike(combo)} className="cc-press p-1">
-                          <Heart size={20} color={T.coral} fill={likes.includes(likeKey(combo)) ? T.coral : "none"} />
-                        </button>
-                      </div>
-                      <p className="text-xs mt-2 mb-2 flex-1" style={{ color: T.navySoft }}>{combo.reason}</p>
-                      <div className="flex gap-1.5">
-                        {[combo.top, combo.outer, combo.bottom, combo.shoe, combo.acc].filter(Boolean).map((it) => (
-                          <img key={it.id} src={it.image} className="w-9 h-9 rounded-lg object-cover" style={{ boxShadow: "0 2px 6px -2px rgba(27,31,59,.3)" }} />
-                        ))}
-                      </div>
-                    </div>
+                  <div className="relative" style={{ background: `linear-gradient(150deg, ${idx % 2 ? "#F3EEFB" : T.mintLight}, #FFFFFF)` }}>
+                    <Avatar3D outfit={combo} height={252} />
+                    <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[11px] font-bold" style={{ background: theme?.accent || T.navy, color: "#fff", fontFamily: theme?.font || undefined }}>Look {idx + 1}</span>
+                    <button onClick={() => toggleLike(combo)} className="cc-press absolute top-3 right-3 w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,.85)" }}>
+                      <Heart size={18} color={T.coral} fill={likes.includes(likeKey(combo)) ? T.coral : "none"} />
+                    </button>
+                    <span className="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-1 rounded-full" style={{ background: "rgba(255,255,255,.85)" }}>
+                      <MoveHorizontal size={11} color={T.lavenderDeep} /><span className="text-[10px] font-bold" style={{ color: T.lavenderDeep }}>geser untuk putar avatar</span>
+                    </span>
                   </div>
-                  <div className="px-4 pb-4 pt-1">
+                  <div className="px-4 pb-4 pt-3">
+                    <p className="text-xs mb-2.5" style={{ color: T.navySoft }}>{combo.reason}</p>
+                    <div className="flex gap-1.5 mb-3">
+                      {[combo.top, combo.outer, combo.bottom, combo.shoe, combo.acc].filter(Boolean).map((it) => (
+                        <img key={it.id} src={it.image} className="w-10 h-10 rounded-lg object-cover" style={{ boxShadow: "0 2px 6px -2px rgba(27,31,59,.3)" }} />
+                      ))}
+                    </div>
                     <Button full variant={worn === combo.id ? "dark" : "primary"} icon={worn === combo.id ? Check : Shirt} onClick={() => markWorn(combo)}>
                       {worn === combo.id ? "Sudah dipakai hari ini" : "Pakai outfit ini"}
                     </Button>
