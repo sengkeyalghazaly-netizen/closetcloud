@@ -29,7 +29,7 @@ export function RankScreen({ items, optIn, setOptIn, userCity, userProvince, onB
   const progressToNext = nextTier ? Math.min(100, Math.max(0, (score.overall - TIERS[score.tier].min) / (nextTier.min - TIERS[score.tier].min) * 100)) : 100;
 
   // Gabungkan user ke leaderboard bila opt-in
-  const me = { name: "Kamu", city: userCity || "Manado", province: userProvince || "Sulawesi Utara", initials: "😎", overall: Math.round(score.overall), stylish: Math.round(score.stylishScore), items: score.itemCount, tier: score.tier, isMe: true };
+  const me = { name: "Kamu", city: userCity || "Manado", province: userProvince || "Sulawesi Utara", initials: "K", overall: Math.round(score.overall), stylish: Math.round(score.stylishScore), items: score.itemCount, tier: score.tier, isMe: true };
   let rows = [...MOCK_LEADERBOARD];
   if (optIn) rows.push(me);
   if (board === "region") rows = rows.filter((r) => r.province === me.province);

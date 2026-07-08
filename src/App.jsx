@@ -47,6 +47,7 @@ export default function App() {
   const [profile, setProfile] = usePersistentState("profile", null);
   const [thriftOrders, setThriftOrders] = usePersistentState("thriftOrders", []);
   const [follows, setFollows] = usePersistentState("follows", []);
+  const [adUsage, setAdUsage] = usePersistentState("adUsage", {});
 
   // Ephemeral UI state. `stack` is a tiny nav stack so Back works everywhere:
   // tabs reset it, drilling into a feature pushes onto it.
@@ -60,7 +61,7 @@ export default function App() {
     clearPersisted();
     setOnboarded(false); setItems([]); setSchedule([]); setSwapRequests([]); setChat([]);
     setLikes([]); setRankOptIn(null); setPlan("free"); setUsage({}); setDeposit(DEFAULT_DEPOSIT);
-    setSettings(DEFAULT_SETTINGS); setProfile(null); setThriftOrders([]); setFollows([]);
+    setSettings(DEFAULT_SETTINGS); setProfile(null); setThriftOrders([]); setFollows([]); setAdUsage({});
     setStack(["home"]);
   };
 
@@ -81,6 +82,12 @@ export default function App() {
     });
     return true;
   };
+
+  // Rewarded ads: watch 2 ads → 1 free generate, capped at 4 ad-views/day.
+  const AD_LIMIT = 4;
+  const adsWatched = adUsage.date === todayKey() ? adUsage.count : 0;
+  const adsLeft = plan === "premium" ? Infinity : Math.max(0, AD_LIMIT - adsWatched);
+  const watchAd = () => setAdUsage((u) => { const c = u.date === todayKey() ? u.count : 0; return { date: todayKey(), count: c + 1 }; });
 
   if (!onboarded) {
     return <Onboarding onFinish={(seedItems, userProfile) => { setItems(seedItems); if (userProfile) setProfile(userProfile); setOnboarded(true); }} />;
@@ -106,7 +113,7 @@ export default function App() {
       <div className="max-w-md mx-auto min-h-screen relative" style={{ background: dark ? "#1B1F3B" : T.bg }}>
         {route === "home" && <HomeScreen profile={profile} items={items} swapRequests={swapRequests} onGo={navTo} />}
         {route === "wardrobe" && <WardrobeScreen items={items} setItems={setItems} />}
-        {route === "outfit" && <OutfitScreen items={items} setItems={setItems} likes={likes} setLikes={setLikes} plan={plan} usage={usage} useQuota={useQuota} onUpgrade={() => setPaywall({ reason: "Outfit Generate tanpa batas" })} />}
+        {route === "outfit" && <OutfitScreen items={items} setItems={setItems} likes={likes} setLikes={setLikes} plan={plan} usage={usage} useQuota={useQuota} adsLeft={adsLeft} watchAd={watchAd} onUpgrade={() => setPaywall({ reason: "Outfit Generate tanpa batas" })} />}
         {route === "swap" && <SwapScreen items={items} setItems={setItems} swapRequests={swapRequests} setSwapRequests={setSwapRequests} deposit={deposit} setDeposit={setDeposit} />}
         {route === "thrift" && <ThriftScreen onBack={back} items={items} setItems={setItems} thriftOrders={thriftOrders} setThriftOrders={setThriftOrders} />}
         {route === "discover" && <DiscoverScreen onBack={back} follows={follows} setFollows={setFollows} onOpenUser={(u) => { setViewUser(u); setStack((s) => [...s, "user"]); }} />}

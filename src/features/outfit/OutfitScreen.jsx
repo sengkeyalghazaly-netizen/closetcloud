@@ -3,6 +3,7 @@ import { RefreshCw, Sparkles, Heart, Shirt, Check, Lightbulb, Sun, Cloud, CloudR
 import { T, fontDisplay } from "../../theme/tokens";
 import { Header, Card, Chip, Button, EmptyState } from "../../components/ui";
 import { QuotaBanner } from "../../components/QuotaBanner";
+import { RewardedAdModal } from "../premium/RewardedAdModal";
 import { Mannequin } from "../../components/Mannequin";
 import { WEATHER_OPTIONS, PLACES, MOODS, GLOBAL_STYLES, COLORS_POOL } from "../../data/reference";
 import { TRENDS } from "../../data/trends";
@@ -14,7 +15,8 @@ import { sound } from "../../lib/sound";
 
 const WEATHER_ICON = { panas: Sun, sejuk: Cloud, hujan: CloudRain };
 
-export function OutfitScreen({ items, setItems, likes, setLikes, plan, usage, useQuota, onUpgrade }) {
+export function OutfitScreen({ items, setItems, likes, setLikes, plan, usage, useQuota, adsLeft, watchAd, onUpgrade }) {
+  const [showAds, setShowAds] = useState(false);
   const [weatherKey, setWeatherKey] = useState("sejuk");
   const [weatherInfo, setWeatherInfo] = useState(null);
   const [place, setPlace] = useState(PLACES[0].key);
@@ -32,11 +34,11 @@ export function OutfitScreen({ items, setItems, likes, setLikes, plan, usage, us
     return () => { alive = false; };
   }, []);
 
+  const doGenerate = () => { sound.whoosh(); setShuffleSeed((s) => s + 1); setWorn(null); };
   const regenerate = () => {
-    if (!useQuota("outfit_generate", "Outfit Generate tanpa batas")) return;
-    sound.whoosh();
-    setShuffleSeed((s) => s + 1);
-    setWorn(null);
+    if (plan === "premium") { doGenerate(); return; }
+    if (left > 0) { if (useQuota("outfit_generate", "Outfit Generate tanpa batas")) doGenerate(); return; }
+    setShowAds(true); // kuota habis → tawarkan nonton iklan untuk generate gratis
   };
 
   const { combos: outfits, partial } = useMemo(
@@ -194,6 +196,13 @@ export function OutfitScreen({ items, setItems, likes, setLikes, plan, usage, us
           </>
         )}
       </div>
+
+      {showAds && (
+        <RewardedAdModal adsLeft={adsLeft} watchAd={watchAd}
+          onReward={() => { setShowAds(false); doGenerate(); sound.success(); }}
+          onClose={() => setShowAds(false)}
+          onUpgrade={() => { setShowAds(false); onUpgrade(); }} />
+      )}
     </div>
   );
 }

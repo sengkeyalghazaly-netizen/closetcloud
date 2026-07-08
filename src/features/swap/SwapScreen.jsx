@@ -70,7 +70,7 @@ function VerifyPhotoModal({ item, onClose, onVerified }) {
 
         <div className="flex items-start gap-2 px-3 py-2.5 rounded-xl mb-4" style={{ background: T.mintLight }}>
           <ShieldCheck size={16} color={T.sage} className="mt-0.5 shrink-0" />
-          <p className="text-xs" style={{ color: T.navy }}>Foto dari kamera in-app otomatis ditandai "Terverifikasi ✓". Listing tanpa foto asli hanya berlabel "Belum diverifikasi".</p>
+          <p className="text-xs" style={{ color: T.navy }}>Foto dari kamera in-app otomatis ditandai "Terverifikasi". Listing tanpa foto asli hanya berlabel "Belum diverifikasi".</p>
         </div>
 
         <Button full disabled={photos.length === 0} icon={Check} onClick={() => onVerified(photos)}>
@@ -342,7 +342,7 @@ export function SwapScreen({ items, setItems, swapRequests, setSwapRequests, dep
                     <Button full variant="outline" onClick={() => setRatingTarget(r)} icon={Star} style={{ marginTop: 10 }}>Tandai Selesai & Beri Rating</Button>
                   )}
                   {r.status === "selesai" && (
-                    <p className="text-xs mt-2" style={{ color: T.sage }}>Selesai · kamu memberi {r.myRating}★, {r.item.owner.name.split(" ")[0]} memberimu {r.theirRating}★</p>
+                    <p className="text-xs mt-2" style={{ color: T.sage }}>Selesai · kamu beri {r.myRating} bintang, {r.item.owner.name.split(" ")[0]} beri kamu {r.theirRating} bintang</p>
                   )}
                 </Card>
               ))}

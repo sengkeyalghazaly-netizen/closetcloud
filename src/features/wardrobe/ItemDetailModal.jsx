@@ -27,7 +27,7 @@ export function ItemDetailModal({ item, onClose, onDelete }) {
           </Card>
         </div>
         <p className="text-xs mb-4" style={{ color: T.navySoft }}>
-          {item.wearCount === 0 ? "Yuk mulai pakai biar makin 'balik modal' 👍" :
+          {item.wearCount === 0 ? "Yuk mulai pakai biar makin 'balik modal'." :
             cpw < 20000 ? "Item ini sudah sangat worth it — sering dipakai!" : "Coba lebih sering dipakai lagi minggu ini."}
         </p>
         <Button variant="outline" full icon={Trash2} onClick={() => onDelete(item.id)} style={{ color: T.coral, borderColor: T.coral }}>Hapus dari lemari</Button>
