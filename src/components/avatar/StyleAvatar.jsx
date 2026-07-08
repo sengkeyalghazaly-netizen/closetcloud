@@ -21,24 +21,24 @@ function IdleGroup({ children }) {
   return <group ref={ref}>{children}</group>;
 }
 
-function LookGroup({ profiles, skin, quality }) {
+function LookGroup({ profiles, skin, hair, quality }) {
   const ref = useRef();
   const s = useRef(0.9);
   useFrame(() => { if (ref.current) { s.current += (1 - s.current) * 0.16; ref.current.scale.setScalar(s.current); } });
   const covered = useMemo(() => { const c = {}; profiles.forEach((p) => { c[p.slot] = true; }); return c; }, [profiles]);
   return (
     <group ref={ref}>
-      <BaseBody skin={skin} covered={covered} />
+      <BaseBody skin={skin} hair={hair} covered={covered} />
       {profiles.map((p, i) => <Garment key={p.slot + "-" + i} profile={p} quality={quality} />)}
     </group>
   );
 }
 
 /* Figur prosedural (dipakai langsung, atau sebagai fallback avatar RPM). */
-function ProceduralFigure({ outfit, skin, quality }) {
+function ProceduralFigure({ outfit, skin, hair, quality }) {
   const profiles = useMemo(() => outfitToProfiles(outfit), [outfit]);
   const lookKey = useMemo(() => profiles.map((p) => p.key).join("|"), [profiles]);
-  return <IdleGroup><LookGroup key={lookKey} profiles={profiles} skin={skin} quality={quality} /></IdleGroup>;
+  return <IdleGroup><LookGroup key={lookKey} profiles={profiles} skin={skin} hair={hair} quality={quality} /></IdleGroup>;
 }
 
 /* Boundary khusus kegagalan load GLB RPM → render fallback (figur prosedural). */
@@ -49,8 +49,8 @@ class GltfBoundary extends Component {
   render() { return this.state.failed ? this.props.fallback : this.props.children; }
 }
 
-function Scene({ outfit, skin, tier, avatarUrl, controlsRef }) {
-  const procedural = <ProceduralFigure outfit={outfit} skin={skin} quality={tier} />;
+function Scene({ outfit, skin, hair, tier, avatarUrl, controlsRef }) {
+  const procedural = <ProceduralFigure outfit={outfit} skin={skin} hair={hair} quality={tier} />;
   return (
     <>
       {/* studio 3-point (bukan ambient datar) untuk kesan premium */}
@@ -84,6 +84,7 @@ export function StyleAvatar({ outfit, avatarUrl, bodyConfig, quality = "auto", h
   const tier = useQualityTier(quality);
   const controlsRef = useRef();
   const skin = bodyConfig?.skin || "#E8C6A2";
+  const hair = bodyConfig?.hair || "#3B2A24";
 
   const fallback = (
     <div className="w-full h-full flex flex-col items-center justify-center" style={{ background: "linear-gradient(160deg,#EAFBF5,#F3EEFB)" }}>
@@ -96,7 +97,7 @@ export function StyleAvatar({ outfit, avatarUrl, bodyConfig, quality = "auto", h
     <div style={{ width: "100%", height, touchAction: "none" }} onDoubleClick={() => controlsRef.current?.reset?.()}>
       <AvatarBoundary fallback={fallback}>
         <Canvas shadows={tier !== "low"} dpr={tier === "low" ? [1, 1] : [1, 1.8]} camera={{ position: [0, 1.15, 3.0], fov: 33 }} gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}>
-          <Scene outfit={outfit} skin={skin} tier={tier} avatarUrl={avatarUrl} controlsRef={controlsRef} />
+          <Scene outfit={outfit} skin={skin} hair={hair} tier={tier} avatarUrl={avatarUrl} controlsRef={controlsRef} />
         </Canvas>
       </AvatarBoundary>
     </div>
