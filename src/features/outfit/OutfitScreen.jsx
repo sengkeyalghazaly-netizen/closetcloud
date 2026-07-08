@@ -4,7 +4,7 @@ import { T, fontDisplay } from "../../theme/tokens";
 import { Header, Card, Chip, Button, EmptyState } from "../../components/ui";
 import { QuotaBanner } from "../../components/QuotaBanner";
 import { RewardedAdModal } from "../premium/RewardedAdModal";
-import { Avatar3D } from "../../components/Avatar3D";
+import { StyleAvatar } from "../../components/avatar/StyleAvatar";
 import { PersonPhoto } from "../../components/illustrations";
 import { WEATHER_OPTIONS, PLACES, MOODS, GLOBAL_STYLES, COLORS_POOL, STYLE_THEME } from "../../data/reference";
 import { TRENDS } from "../../data/trends";
@@ -26,6 +26,7 @@ export function OutfitScreen({ items, setItems, likes, setLikes, plan, usage, us
   const [colorPref, setColorPref] = useState(null);
   const [shuffleSeed, setShuffleSeed] = useState(0);
   const [worn, setWorn] = useState(null);
+  const [look, setLook] = useState(0);
   const left = remaining(usage, "outfit_generate", plan);
 
   // cuaca real lokasi user → set default weatherKey (tetap bisa dioverride)
@@ -35,7 +36,7 @@ export function OutfitScreen({ items, setItems, likes, setLikes, plan, usage, us
     return () => { alive = false; };
   }, []);
 
-  const doGenerate = () => { sound.whoosh(); setShuffleSeed((s) => s + 1); setWorn(null); };
+  const doGenerate = () => { sound.whoosh(); setShuffleSeed((s) => s + 1); setWorn(null); setLook(0); };
   const regenerate = () => {
     if (plan === "premium") { doGenerate(); return; }
     if (left > 0) { if (useQuota("outfit_generate", "Outfit Generate tanpa batas")) doGenerate(); return; }
@@ -171,17 +172,25 @@ export function OutfitScreen({ items, setItems, likes, setLikes, plan, usage, us
                 <p className="text-xs" style={{ color: T.navy }}>Item bergaya {styleGlobal} belum lengkap — ini versi terdekat dari lemarimu. Tanya Kai untuk melengkapi (thrift/swap dulu ya!).</p>
               </div>
             )}
-            <div className="flex flex-col gap-3.5 cc-stagger">
-              {outfits.map((combo, idx) => (
-                <div key={combo.id} className="cc-pop-in rounded-3xl overflow-hidden" style={{ background: T.white, boxShadow: "0 14px 34px -22px rgba(27,31,59,.4)" }}>
-                  <div className="relative" style={{ background: `linear-gradient(150deg, ${idx % 2 ? "#F3EEFB" : T.mintLight}, #FFFFFF)` }}>
-                    <Avatar3D outfit={combo} height={252} />
-                    <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[11px] font-bold" style={{ background: theme?.accent || T.navy, color: "#fff", fontFamily: theme?.font || undefined }}>Look {idx + 1}</span>
+            {(() => {
+              const sel = Math.min(look, outfits.length - 1);
+              const combo = outfits[sel];
+              if (!combo) return null;
+              return (
+                <div className="cc-pop-in rounded-3xl overflow-hidden" style={{ background: T.white, boxShadow: "0 14px 34px -22px rgba(27,31,59,.4)" }}>
+                  <div className="flex gap-2 p-3 pb-0">
+                    {outfits.map((_, i) => (
+                      <button key={i} onClick={() => { sound.tap(); setLook(i); }} className="cc-press flex-1 py-1.5 rounded-xl text-xs font-bold"
+                        style={{ background: i === sel ? (theme?.accent || T.navy) : "#EEF0F6", color: i === sel ? "#fff" : T.navySoft, fontFamily: i === sel ? (theme?.font || undefined) : undefined }}>Look {i + 1}</button>
+                    ))}
+                  </div>
+                  <div className="relative" style={{ background: `linear-gradient(160deg, ${T.mintLight}, #F3EEFB)` }}>
+                    <StyleAvatar outfit={combo} bodyConfig={{ skin: "#E8C6A2" }} height={360} />
                     <button onClick={() => toggleLike(combo)} className="cc-press absolute top-3 right-3 w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,.85)" }}>
                       <Heart size={18} color={T.coral} fill={likes.includes(likeKey(combo)) ? T.coral : "none"} />
                     </button>
-                    <span className="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-1 rounded-full" style={{ background: "rgba(255,255,255,.85)" }}>
-                      <MoveHorizontal size={11} color={T.lavenderDeep} /><span className="text-[10px] font-bold" style={{ color: T.lavenderDeep }}>geser untuk putar avatar</span>
+                    <span className="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1 rounded-full" style={{ background: "rgba(255,255,255,.88)" }}>
+                      <MoveHorizontal size={11} color={T.lavenderDeep} /><span className="text-[10px] font-bold" style={{ color: T.lavenderDeep }}>geser putar · cubit zoom · ketuk-2× reset</span>
                     </span>
                   </div>
                   <div className="px-4 pb-4 pt-3">
@@ -203,8 +212,8 @@ export function OutfitScreen({ items, setItems, likes, setLikes, plan, usage, us
                     </Button>
                   </div>
                 </div>
-              ))}
-            </div>
+              );
+            })()}
           </>
         )}
       </div>
