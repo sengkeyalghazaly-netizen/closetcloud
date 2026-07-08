@@ -27,7 +27,7 @@ export const fontBody = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 export function useFonts() {
   useEffect(() => {
     const links = [
-      { id: "cc-fonts-google", href: "https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" },
+      { id: "cc-fonts-google", href: "https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Space+Mono:wght@400;700&display=swap" },
       { id: "cc-fonts-clash", href: "https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&display=swap" },
     ];
     links.forEach(({ id, href }) => {

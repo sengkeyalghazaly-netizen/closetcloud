@@ -13,12 +13,12 @@ import { KaiScreen } from "./features/kai/KaiScreen";
 import { SchedulerScreen } from "./features/scheduler/SchedulerScreen";
 import { SwapScreen } from "./features/swap/SwapScreen";
 import { ThriftScreen } from "./features/thrift/ThriftScreen";
-import { DiscoverScreen } from "./features/social/DiscoverScreen";
+import { CommunityScreen } from "./features/social/CommunityScreen";
 import { UserProfileScreen } from "./features/social/UserProfileScreen";
-import { RankScreen } from "./features/rank/RankScreen";
 import { AnalyticsScreen } from "./features/analytics/AnalyticsScreen";
 import { DashboardScreen } from "./features/dashboard/DashboardScreen";
 import { ProfileScreen } from "./features/profile/ProfileScreen";
+import { SettingsScreen } from "./features/profile/SettingsScreen";
 import { PaywallSheet } from "./features/premium/PaywallSheet";
 
 /* ============ MAIN APP SHELL ============
@@ -116,15 +116,15 @@ export default function App() {
         {route === "outfit" && <OutfitScreen items={items} setItems={setItems} likes={likes} setLikes={setLikes} plan={plan} usage={usage} useQuota={useQuota} adsLeft={adsLeft} watchAd={watchAd} onUpgrade={() => setPaywall({ reason: "Outfit Generate tanpa batas" })} />}
         {route === "swap" && <SwapScreen items={items} setItems={setItems} swapRequests={swapRequests} setSwapRequests={setSwapRequests} deposit={deposit} setDeposit={setDeposit} />}
         {route === "thrift" && <ThriftScreen onBack={back} items={items} setItems={setItems} thriftOrders={thriftOrders} setThriftOrders={setThriftOrders} />}
-        {route === "discover" && <DiscoverScreen onBack={back} follows={follows} setFollows={setFollows} onOpenUser={(u) => { setViewUser(u); setStack((s) => [...s, "user"]); }} />}
+        {route === "community" && <CommunityScreen onBack={back} items={items} optIn={rankOptIn} setOptIn={setRankOptIn} follows={follows} setFollows={setFollows} onOpenUser={(u) => { setViewUser(u); setStack((s) => [...s, "user"]); }} />}
         {route === "user" && <UserProfileScreen user={viewUser} follows={follows} setFollows={setFollows} onBack={back} />}
-        {route === "profile" && <ProfileScreen profile={profile} setProfile={setProfile} follows={follows} items={items} swapRequests={swapRequests} plan={plan} settings={settings} setSettings={setSettings} rankOptIn={rankOptIn} setRankOptIn={setRankOptIn} onNavigate={navTo} onUpgrade={() => setPaywall({ reason: "Buka semua fitur premium" })} onManageSub={() => setPaywall({ reason: "Kelola langganan ClosetCloud+" })} onSignOut={resetAll} onDeleteAccount={resetAll} onExport={exportData} />}
+        {route === "profile" && <ProfileScreen profile={profile} setProfile={setProfile} follows={follows} items={items} swapRequests={swapRequests} plan={plan} settings={settings} onNavigate={navTo} />}
+        {route === "settings" && <SettingsScreen onBack={back} settings={settings} setSettings={setSettings} plan={plan} rankOptIn={rankOptIn} setRankOptIn={setRankOptIn} onUpgrade={() => setPaywall({ reason: "Buka semua fitur premium" })} onManageSub={() => setPaywall({ reason: "Kelola langganan ClosetCloud+" })} onExport={exportData} onSignOut={resetAll} onDeleteAccount={resetAll} />}
 
         {route === "kai" && <KaiScreen onBack={back} items={items} setItems={setItems} chat={chat} setChat={setChat} plan={plan} usage={usage} useQuota={useQuota} onUpgrade={() => setPaywall({ reason: "Chat Kai tanpa batas" })} />}
         {route === "scheduler" && <SchedulerScreen onBack={back} items={items} schedule={schedule} setSchedule={setSchedule} />}
         {route === "analytics" && <AnalyticsScreen onBack={back} items={items} />}
         {route === "dashboard" && <DashboardScreen onBack={back} items={items} swapRequests={swapRequests} />}
-        {route === "rank" && <RankScreen onBack={back} items={items} optIn={rankOptIn} setOptIn={setRankOptIn} />}
 
         <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto flex justify-around items-center py-2.5 px-1" style={{ background: dark ? "#252A4D" : T.white, borderTop: dark ? "1px solid #333858" : "1px solid #E3E6F0", boxShadow: "0 -8px 24px -18px rgba(27,31,59,.4)" }}>
           {NAV.map((t) => {

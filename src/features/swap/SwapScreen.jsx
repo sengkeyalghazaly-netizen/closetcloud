@@ -4,7 +4,7 @@ import { T, fontDisplay } from "../../theme/tokens";
 import { Header, Card, Chip, Button, EmptyState } from "../../components/ui";
 import { MOCK_USERS, MOCK_SWAP_ITEMS, DEPOSIT_AMOUNT } from "../../data/mock";
 import { CATEGORIES } from "../../data/reference";
-import { GarmentImage } from "../../components/illustrations";
+import { GarmentPhoto } from "../../components/illustrations";
 
 function VerifyPhotoModal({ item, onClose, onVerified }) {
   const [photos, setPhotos] = useState([]);
@@ -81,9 +81,9 @@ function VerifyPhotoModal({ item, onClose, onVerified }) {
   );
 }
 
-/* thin wrapper: depiksi garmen "foto produk" berdasarkan kategori + warna */
+/* foto garmen asli (fallback ke depiksi SVG bila gagal load) */
 function GarmentPlaceholder({ item, size = "w-full h-32" }) {
-  return <GarmentImage category={item?.category} color={item?.color} size={size} />;
+  return <GarmentPhoto category={item?.category} color={item?.color} photoKey={item?.id} size={size} />;
 }
 
 function StatusBadge({ status }) {

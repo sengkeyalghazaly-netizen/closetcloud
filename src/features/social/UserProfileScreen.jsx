@@ -2,7 +2,7 @@ import { MapPin, UserPlus, UserCheck, Grid3x3, Lock } from "lucide-react";
 import { T, fontDisplay } from "../../theme/tokens";
 import { Header } from "../../components/ui";
 import { TierBadge } from "../../components/TierBadge";
-import { GarmentImage } from "../../components/illustrations";
+import { GarmentPhoto } from "../../components/illustrations";
 import { sound } from "../../lib/sound";
 
 /* Lihat profil + isi lemari pengguna lain (yang di-publish). */
@@ -45,7 +45,7 @@ export function UserProfileScreen({ user, follows, setFollows, onBack }) {
         <div className="grid grid-cols-3 gap-2.5 cc-stagger">
           {user.wardrobe.map((it) => (
             <div key={it.id} className="cc-pop-in rounded-2xl overflow-hidden" style={{ boxShadow: "0 8px 18px -14px rgba(27,31,59,.3)" }}>
-              <GarmentImage category={it.category} color={it.color} size="w-full h-28" />
+              <GarmentPhoto category={it.category} color={it.color} photoKey={it.id} size="w-full h-28" />
               <div className="px-2 py-1.5" style={{ background: T.white }}>
                 <p className="text-[11px] font-semibold truncate" style={{ color: T.navy }}>{it.name}</p>
               </div>

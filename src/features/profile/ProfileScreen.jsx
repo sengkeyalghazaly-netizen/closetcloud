@@ -1,55 +1,25 @@
-import { useState, useMemo, useRef } from "react";
-import { Sparkles, ShoppingBag, Wallet, BarChart3, MessageCircle, Bell, Moon, Sun, Settings, ShieldCheck, Download, Trash2, Crown, ChevronRight, HelpCircle, ChevronDown, Mail, LogOut, CalendarDays, Trophy, Store, Camera, Search } from "lucide-react";
+import { useMemo, useRef } from "react";
+import { Settings as Cog, Camera, Crown, ChevronRight, Users, MessageCircle, Store, CalendarDays, Wallet, BarChart3, Sparkles, ShoppingBag } from "lucide-react";
 import { T, fontDisplay } from "../../theme/tokens";
-import { Button, Toggle } from "../../components/ui";
 import { TierBadge } from "../../components/TierBadge";
 import { computeStyleScore } from "../../lib/scoring";
-import { FAQ_ITEMS } from "../../data/mock";
+import { sound } from "../../lib/sound";
 
-function StatCard({ icon: Icon, label, value, dark }) {
-  return (
-    <div className="rounded-2xl p-3 flex-1" style={{ background: dark ? "#252A4D" : T.white, boxShadow: "0 6px 18px -12px rgba(27,31,59,0.2)" }}>
-      <Icon size={18} color={T.lavenderDeep} />
-      <p className="font-extrabold text-lg mt-1.5" style={{ ...fontDisplay, color: dark ? "#fff" : T.navy }}>{value}</p>
-      <p className="text-[11px]" style={{ color: dark ? "rgba(255,255,255,0.6)" : T.navySoft }}>{label}</p>
-    </div>
-  );
-}
-
-function QuickAction({ icon: Icon, title, sub, onClick, dark }) {
-  return (
-    <button onClick={onClick} className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl" style={{ background: dark ? "#252A4D" : T.white, border: dark ? "none" : "1px solid #E3E6F0" }}>
-      <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: T.mintLight }}><Icon size={17} color={T.lavenderDeep} /></div>
-      <div className="flex-1 text-left">
-        <p className="text-sm font-semibold" style={{ color: dark ? "#fff" : T.navy }}>{title}</p>
-        <p className="text-xs" style={{ color: dark ? "rgba(255,255,255,0.6)" : T.navySoft }}>{sub}</p>
-      </div>
-      <ChevronRight size={16} color={dark ? "rgba(255,255,255,0.5)" : T.navySoft} />
-    </button>
-  );
-}
-
-function FollowStat({ n, label, dark }) {
-  return (
-    <div className="text-center px-2">
-      <p className="font-extrabold text-base leading-none" style={{ ...fontDisplay, color: dark ? "#fff" : T.navy }}>{n >= 1000 ? `${(n / 1000).toFixed(1)}rb` : n}</p>
-      <p className="text-[11px] mt-0.5" style={{ color: dark ? "rgba(255,255,255,0.6)" : T.navySoft }}>{label}</p>
-    </div>
-  );
-}
-
-/* ============ PROFILE & SETTINGS ============ */
-export function ProfileScreen({ profile, setProfile, follows = [], items, swapRequests, plan, settings, setSettings, rankOptIn, setRankOptIn, onNavigate, onUpgrade, onManageSub, onSignOut, onDeleteAccount, onExport }) {
-  const [faqOpen, setFaqOpen] = useState(null);
-  const [confirmSignOut, setConfirmSignOut] = useState(false);
-  const [confirmDelete, setConfirmDelete] = useState(0);
+/* Profil difokuskan ke identitas + sosial + preview lemari + akses fitur.
+ * Semua pengaturan pindah ke layar Settings (ikon gerigi). */
+export function ProfileScreen({ profile, setProfile, follows = [], items, swapRequests = [], plan, settings, onNavigate }) {
   const avatarRef = useRef(null);
-  const dark = settings.appearance === "dark";
-
+  const dark = settings?.appearance === "dark";
   const name = profile?.name || "Kamu";
   const email = profile?.email || "kamu@closetcloud.id";
   const initials = name.trim().split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase() || "K";
-  const followers = 128 + follows.length * 3; // mock, tumbuh saat kamu aktif
+  const followers = 128 + follows.length * 3;
+
+  const score = useMemo(() => computeStyleScore(items), [items]);
+  const outfitsGenerated = items.reduce((s, i) => s + i.wearCount, 0);
+  const completedSwaps = swapRequests.filter((r) => r.status === "selesai").length;
+  const moneySaved = Math.round(outfitsGenerated * 15000 + completedSwaps * 75000);
+
   const changeAvatar = (file) => {
     if (!file || !file.type.startsWith("image/") || !setProfile) return;
     const reader = new FileReader();
@@ -57,27 +27,32 @@ export function ProfileScreen({ profile, setProfile, follows = [], items, swapRe
     reader.readAsDataURL(file);
   };
 
-  const score = useMemo(() => computeStyleScore(items), [items]);
-  const outfitsGenerated = items.reduce((s, i) => s + i.wearCount, 0);
-  const itemsOrganized = items.length;
-  // Money saved = (pemakaian ulang × estimasi hemat/pakai) + (swap selesai × estimasi nilai sewa dihindari)
-  const completedSwaps = swapRequests.filter((r) => r.status === "selesai").length;
-  const moneySaved = Math.round(outfitsGenerated * 15000 + completedSwaps * 75000);
-
-  const set = (k, v) => setSettings({ ...settings, [k]: v });
-
   const bg = dark ? "#1B1F3B" : T.bg;
   const cardBg = dark ? "#252A4D" : T.white;
   const textMain = dark ? "#fff" : T.navy;
   const textSub = dark ? "rgba(255,255,255,0.6)" : T.navySoft;
 
+  const features = [
+    { key: "community", label: "Komunitas", icon: Users, tint: "#8FB8DE" },
+    { key: "kai", label: "Kai", icon: MessageCircle, tint: T.lavenderDeep },
+    { key: "thrift", label: "Thrift", icon: Store, tint: T.coral },
+    { key: "scheduler", label: "Jadwal", icon: CalendarDays, tint: T.sage },
+    { key: "analytics", label: "Cost/Wear", icon: Wallet, tint: T.lavender },
+    { key: "dashboard", label: "Insight", icon: BarChart3, tint: T.mint },
+  ];
+  const preview = items.slice(0, 6);
+  const go = (r) => { sound.tap(); onNavigate(r); };
+
   return (
-    <div className="pb-24" style={{ background: bg, minHeight: "100vh" }}>
-      <div className="px-4 pt-6 pb-4">
+    <div className="pb-28" style={{ background: bg, minHeight: "100vh" }}>
+      <div className="px-4 pt-6 pb-3 flex items-center justify-between">
         <p className="font-extrabold text-2xl" style={{ ...fontDisplay, color: textMain }}>Profil</p>
+        <button onClick={() => go("settings")} className="cc-press w-10 h-10 rounded-full flex items-center justify-center" style={{ background: cardBg, boxShadow: "0 6px 16px -8px rgba(27,31,59,.25)" }} aria-label="Pengaturan">
+          <Cog size={19} color={textMain} />
+        </button>
       </div>
 
-      {/* Header akun */}
+      {/* Identitas + sosial */}
       <div className="px-4">
         <div className="rounded-3xl p-5" style={{ background: dark ? "#252A4D" : `linear-gradient(135deg, ${T.mintLight}, #F3EEFB)` }}>
           <input ref={avatarRef} type="file" accept="image/*" className="hidden" onChange={(e) => changeAvatar(e.target.files[0])} />
@@ -91,13 +66,12 @@ export function ProfileScreen({ profile, setProfile, follows = [], items, swapRe
               <p className="text-sm truncate" style={{ color: textSub }}>{email}</p>
             </div>
           </div>
-          {/* followers / following */}
-          <button onClick={() => onNavigate("discover")} className="cc-press w-full flex items-center justify-around rounded-2xl py-2.5 mb-3" style={{ background: dark ? "#1B1F3B" : "rgba(255,255,255,.55)" }}>
-            <FollowStat n={items.length} label="item" dark={dark} />
+          <button onClick={() => go("community")} className="cc-press w-full flex items-center justify-around rounded-2xl py-2.5 mb-3" style={{ background: dark ? "#1B1F3B" : "rgba(255,255,255,.55)" }}>
+            <Stat n={items.length} label="item" dark={dark} />
             <div className="w-px h-7" style={{ background: dark ? "#333858" : "#E3E6F0" }} />
-            <FollowStat n={followers} label="pengikut" dark={dark} />
+            <Stat n={followers} label="pengikut" dark={dark} />
             <div className="w-px h-7" style={{ background: dark ? "#333858" : "#E3E6F0" }} />
-            <FollowStat n={follows.length} label="mengikuti" dark={dark} />
+            <Stat n={follows.length} label="mengikuti" dark={dark} />
           </button>
           <div className="flex gap-2 flex-wrap">
             {plan === "premium" ? (
@@ -114,138 +88,65 @@ export function ProfileScreen({ profile, setProfile, follows = [], items, swapRe
         </div>
       </div>
 
-      {/* 3 kartu statistik */}
+      {/* Dampak (highlight ringkas) */}
       <div className="px-4 mt-3 flex gap-2.5">
-        <StatCard icon={Sparkles} label="Outfits Generated" value={outfitsGenerated} dark={dark} />
-        <StatCard icon={ShoppingBag} label="Items Organized" value={itemsOrganized} dark={dark} />
-        <StatCard icon={Wallet} label="Money Saved" value={`Rp${(moneySaved / 1000).toFixed(0)}rb`} dark={dark} />
+        <Highlight icon={Sparkles} value={outfitsGenerated} label="outfit dipakai" dark={dark} cardBg={cardBg} textMain={textMain} textSub={textSub} />
+        <Highlight icon={Wallet} value={`Rp${(moneySaved / 1000).toFixed(0)}rb`} label="hemat" dark={dark} cardBg={cardBg} textMain={textMain} textSub={textSub} />
       </div>
 
-      {/* Fitur */}
-      <div className="px-4 mt-4">
-        <p className="text-xs font-semibold mb-2" style={{ color: textSub }}>FITUR KAMU</p>
-        <div className="flex flex-col gap-2">
-          <QuickAction icon={Search} title="Cari & Ikuti Pengguna" sub="Jelajah gaya komunitas" onClick={() => onNavigate("discover")} dark={dark} />
-          <QuickAction icon={MessageCircle} title="Kai — AI Stylist" sub="Minta saran gaya kapan saja" onClick={() => onNavigate("kai")} dark={dark} />
-          <QuickAction icon={Store} title="Thrift Market" sub="Jual & beli preloved" onClick={() => onNavigate("thrift")} dark={dark} />
-          <QuickAction icon={CalendarDays} title="Outfit Scheduler" sub="Rencanakan outfit di kalender" onClick={() => onNavigate("scheduler")} dark={dark} />
-          <QuickAction icon={Wallet} title="Cost Per Wear" sub="Nilai ekonomi tiap baju" onClick={() => onNavigate("analytics")} dark={dark} />
-          <QuickAction icon={BarChart3} title="Style Insight" sub="Statistik & jejak karbon" onClick={() => onNavigate("dashboard")} dark={dark} />
-          <QuickAction icon={Trophy} title="Style Rank" sub="Peringkat gaya komunitas" onClick={() => onNavigate("rank")} dark={dark} />
-        </div>
-      </div>
-
-      {/* Settings */}
+      {/* Preview lemari */}
       <div className="px-4 mt-5">
-        <p className="text-xs font-semibold mb-2" style={{ color: textSub }}>PENGATURAN</p>
-
-        {/* Notifikasi */}
-        <div className="rounded-2xl p-4 mb-2.5" style={{ background: cardBg, border: dark ? "none" : "1px solid #E3E6F0" }}>
-          <div className="flex items-center gap-2 mb-3"><Bell size={16} color={T.lavenderDeep} /><p className="text-sm font-semibold" style={{ color: textMain }}>Notifikasi</p></div>
-          {[["notifOutfit", "Outfit harian"], ["notifSwap", "Aktivitas swap"], ["notifEvent", "Pengingat acara"]].map(([k, l]) => (
-            <div key={k} className="flex items-center justify-between py-1.5">
-              <span className="text-sm" style={{ color: textSub }}>{l}</span>
-              <Toggle on={settings[k]} onChange={() => set(k, !settings[k])} />
-            </div>
-          ))}
+        <div className="flex items-center justify-between mb-2.5">
+          <p className="font-bold text-sm" style={{ ...fontDisplay, color: textMain }}>Lemarimu</p>
+          <button onClick={() => go("wardrobe")} className="cc-press flex items-center gap-0.5 text-xs font-semibold" style={{ color: T.lavenderDeep }}>Lihat semua <ChevronRight size={13} /></button>
         </div>
-
-        {/* Appearance */}
-        <div className="rounded-2xl p-4 mb-2.5" style={{ background: cardBg, border: dark ? "none" : "1px solid #E3E6F0" }}>
-          <div className="flex items-center gap-2 mb-3"><Moon size={16} color={T.lavenderDeep} /><p className="text-sm font-semibold" style={{ color: textMain }}>Tampilan</p></div>
-          <div className="flex gap-2">
-            {[["light", "Terang", Sun], ["dark", "Gelap", Moon], ["system", "Sistem", Settings]].map(([k, l, Ic]) => (
-              <button key={k} onClick={() => set("appearance", k)} className="flex-1 rounded-xl py-2.5 flex flex-col items-center gap-1"
-                style={{ background: settings.appearance === k ? T.mintLight : (dark ? "#1B1F3B" : "#F7F8FC"), border: settings.appearance === k ? `1.5px solid ${T.mint}` : "1px solid transparent" }}>
-                <Ic size={15} color={settings.appearance === k ? T.lavenderDeep : textSub} />
-                <span className="text-xs font-medium" style={{ color: settings.appearance === k ? T.navy : textSub }}>{l}</span>
+        {preview.length === 0 ? (
+          <button onClick={() => go("wardrobe")} className="cc-press w-full rounded-2xl py-8 flex flex-col items-center gap-2" style={{ background: cardBg, border: dark ? "none" : "1px dashed #C9CCD8" }}>
+            <ShoppingBag size={22} color={T.lavenderDeep} />
+            <span className="text-sm font-semibold" style={{ color: textMain }}>Belum ada item — yuk scan baju</span>
+          </button>
+        ) : (
+          <div className="grid grid-cols-3 gap-2.5">
+            {preview.map((it) => (
+              <button key={it.id} onClick={() => go("wardrobe")} className="cc-press rounded-2xl overflow-hidden" style={{ boxShadow: "0 8px 18px -14px rgba(27,31,59,.3)" }}>
+                <img src={it.image} className="w-full h-24 object-cover" />
               </button>
             ))}
           </div>
-        </div>
-
-        {/* Privacy */}
-        <div className="rounded-2xl p-4 mb-2.5" style={{ background: cardBg, border: dark ? "none" : "1px solid #E3E6F0" }}>
-          <div className="flex items-center gap-2 mb-3"><ShieldCheck size={16} color={T.lavenderDeep} /><p className="text-sm font-semibold" style={{ color: textMain }}>Privasi</p></div>
-          <div className="flex items-center justify-between py-1.5">
-            <span className="text-sm" style={{ color: textSub }}>Tampil di leaderboard</span>
-            <Toggle on={rankOptIn === true} onChange={() => setRankOptIn(rankOptIn === true ? false : true)} />
-          </div>
-          <div className="flex items-center justify-between py-1.5">
-            <span className="text-sm" style={{ color: textSub }}>Terima permintaan swap</span>
-            <Toggle on={settings.allowSwap} onChange={() => set("allowSwap", !settings.allowSwap)} />
-          </div>
-          <p className="text-[11px] font-semibold mt-2 mb-1" style={{ color: textSub }}>Data yang dipublikasikan</p>
-          {[["pubWardrobe", "Lemari bisa dilihat publik"], ["pubCity", "Tampilkan kota"], ["pubStats", "Tampilkan statistik gaya"]].map(([k, l]) => (
-            <div key={k} className="flex items-center justify-between py-1.5">
-              <span className="text-sm" style={{ color: textSub }}>{l}</span>
-              <Toggle on={settings[k] !== false} onChange={() => set(k, settings[k] === false ? true : false)} />
-            </div>
-          ))}
-          <button onClick={onExport} className="w-full flex items-center gap-2 py-2 mt-1"><Download size={15} color={textSub} /><span className="text-sm" style={{ color: textSub }}>Unduh data saya (JSON)</span></button>
-          <button onClick={() => setConfirmDelete(1)} className="w-full flex items-center gap-2 py-2"><Trash2 size={15} color={T.coral} /><span className="text-sm font-medium" style={{ color: T.coral }}>Hapus akun</span></button>
-        </div>
-
-        {/* Subscription */}
-        <button onClick={plan === "premium" ? onManageSub : onUpgrade} className="w-full rounded-2xl p-4 mb-2.5 flex items-center gap-2" style={{ background: cardBg, border: dark ? "none" : "1px solid #E3E6F0" }}>
-          <Crown size={16} color={T.lavenderDeep} />
-          <div className="flex-1 text-left">
-            <p className="text-sm font-semibold" style={{ color: textMain }}>{plan === "premium" ? "Kelola Langganan" : "Upgrade ke ClosetCloud+"}</p>
-            <p className="text-xs" style={{ color: textSub }}>{plan === "premium" ? "Aktif · perpanjang otomatis" : "Buka semua fitur Rp 30.000/bulan"}</p>
-          </div>
-          <ChevronRight size={16} color={textSub} />
-        </button>
-
-        {/* Help Center */}
-        <div className="rounded-2xl p-4 mb-2.5" style={{ background: cardBg, border: dark ? "none" : "1px solid #E3E6F0" }}>
-          <div className="flex items-center gap-2 mb-2"><HelpCircle size={16} color={T.lavenderDeep} /><p className="text-sm font-semibold" style={{ color: textMain }}>Pusat Bantuan</p></div>
-          {FAQ_ITEMS.map((f, i) => (
-            <div key={i} className="border-t" style={{ borderColor: dark ? "#333858" : "#EEF0F6" }}>
-              <button onClick={() => setFaqOpen(faqOpen === i ? null : i)} className="w-full flex items-center justify-between py-2.5 text-left gap-2">
-                <span className="text-sm" style={{ color: textMain }}>{f.q}</span>
-                <ChevronDown size={15} color={textSub} style={{ transform: faqOpen === i ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
-              </button>
-              {faqOpen === i && <p className="text-xs pb-3" style={{ color: textSub }}>{f.a}</p>}
-            </div>
-          ))}
-          <a href="mailto:support@closetcloud.id" className="flex items-center gap-2 pt-2 border-t" style={{ borderColor: dark ? "#333858" : "#EEF0F6" }}>
-            <Mail size={15} color={T.lavenderDeep} /><span className="text-sm font-medium" style={{ color: T.lavenderDeep }}>Hubungi support</span>
-          </a>
-        </div>
-
-        {/* Sign out */}
-        <button onClick={() => setConfirmSignOut(true)} className="w-full rounded-2xl p-4 flex items-center justify-center gap-2" style={{ background: dark ? "#3A2530" : "#FCEEE9" }}>
-          <LogOut size={16} color={T.coral} /><span className="text-sm font-bold" style={{ color: T.coral }}>Keluar</span>
-        </button>
+        )}
       </div>
 
-      {/* Konfirmasi sign out */}
-      {confirmSignOut && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center px-6" style={{ background: "rgba(27,31,59,0.6)" }}>
-          <div className="w-full max-w-xs rounded-3xl p-5" style={{ background: T.bg }}>
-            <p className="font-bold text-base mb-1" style={{ ...fontDisplay, color: T.navy }}>Keluar dari akun?</p>
-            <p className="text-sm mb-4" style={{ color: T.navySoft }}>Kamu perlu masuk lagi untuk mengakses lemarimu.</p>
-            <div className="flex gap-2">
-              <Button variant="outline" full onClick={() => setConfirmSignOut(false)}>Batal</Button>
-              <Button full onClick={onSignOut} style={{ background: T.coral, color: "#fff" }}>Keluar</Button>
-            </div>
-          </div>
+      {/* Akses fitur */}
+      <div className="px-4 mt-5">
+        <p className="font-bold text-sm mb-2.5" style={{ ...fontDisplay, color: textMain }}>Fitur kamu</p>
+        <div className="grid grid-cols-3 gap-2.5">
+          {features.map((f) => (
+            <button key={f.key} onClick={() => go(f.key)} className="cc-press rounded-2xl py-4 flex flex-col items-center gap-2" style={{ background: cardBg, boxShadow: dark ? "none" : "0 8px 20px -16px rgba(27,31,59,.3)", border: dark ? "1px solid #333858" : "none" }}>
+              <span className="w-11 h-11 rounded-2xl flex items-center justify-center" style={{ background: `${f.tint}2e` }}><f.icon size={20} color={dark ? "#fff" : T.navy} /></span>
+              <span className="text-xs font-semibold text-center" style={{ color: textMain }}>{f.label}</span>
+            </button>
+          ))}
         </div>
-      )}
+      </div>
+    </div>
+  );
+}
 
-      {/* Konfirmasi hapus akun (ganda) */}
-      {confirmDelete > 0 && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center px-6" style={{ background: "rgba(27,31,59,0.6)" }}>
-          <div className="w-full max-w-xs rounded-3xl p-5" style={{ background: T.bg }}>
-            <p className="font-bold text-base mb-1" style={{ ...fontDisplay, color: T.navy }}>{confirmDelete === 1 ? "Hapus akun?" : "Yakin? Ini permanen"}</p>
-            <p className="text-sm mb-4" style={{ color: T.navySoft }}>{confirmDelete === 1 ? "Semua data lemari, swap, dan skormu akan dihapus." : "Tindakan ini tidak bisa dibatalkan. Ketuk sekali lagi untuk konfirmasi."}</p>
-            <div className="flex gap-2">
-              <Button variant="outline" full onClick={() => setConfirmDelete(0)}>Batal</Button>
-              <Button full onClick={() => confirmDelete === 1 ? setConfirmDelete(2) : onDeleteAccount()} style={{ background: T.coral, color: "#fff" }}>{confirmDelete === 1 ? "Lanjut" : "Hapus permanen"}</Button>
-            </div>
-          </div>
-        </div>
-      )}
+function Stat({ n, label, dark }) {
+  return (
+    <div className="text-center px-2">
+      <p className="font-extrabold text-base leading-none" style={{ ...fontDisplay, color: dark ? "#fff" : T.navy }}>{n >= 1000 ? `${(n / 1000).toFixed(1)}rb` : n}</p>
+      <p className="text-[11px] mt-0.5" style={{ color: dark ? "rgba(255,255,255,0.6)" : T.navySoft }}>{label}</p>
+    </div>
+  );
+}
+
+function Highlight({ icon: Icon, value, label, cardBg, textMain, textSub, dark }) {
+  return (
+    <div className="flex-1 rounded-2xl p-3.5" style={{ background: cardBg, boxShadow: dark ? "none" : "0 8px 20px -16px rgba(27,31,59,.3)" }}>
+      <Icon size={17} color={T.lavenderDeep} />
+      <p className="font-extrabold text-lg mt-1.5" style={{ ...fontDisplay, color: textMain }}>{value}</p>
+      <p className="text-[11px]" style={{ color: textSub }}>{label}</p>
     </div>
   );
 }

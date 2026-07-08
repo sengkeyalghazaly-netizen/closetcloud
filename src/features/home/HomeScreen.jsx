@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Camera, Sparkles, Repeat, MessageCircle, Store, BarChart3, Sun, Cloud, CloudRain, ChevronRight, Bell, ArrowRight } from "lucide-react";
+import { Camera, Sparkles, Repeat, MessageCircle, Store, Users, Sun, Cloud, CloudRain, ChevronRight, Bell, ArrowRight } from "lucide-react";
 import { T, fontDisplay } from "../../theme/tokens";
 import { Card, Button } from "../../components/ui";
 import { Logo } from "../../components/illustrations";
@@ -28,7 +28,7 @@ export function HomeScreen({ profile, items, swapRequests, onGo }) {
     { key: "swap", label: "Swap", icon: Repeat, tint: T.sage },
     { key: "kai", label: "Tanya Kai", icon: MessageCircle, tint: T.lavenderDeep },
     { key: "thrift", label: "Thrift", icon: Store, tint: T.coral },
-    { key: "dashboard", label: "Insight", icon: BarChart3, tint: "#8FB8DE" },
+    { key: "community", label: "Komunitas", icon: Users, tint: "#8FB8DE" },
   ];
 
   const go = (r) => { sound.tap(); onGo(r); };
@@ -80,7 +80,7 @@ export function HomeScreen({ profile, items, swapRequests, onGo }) {
         <div className="flex gap-2.5">
           <MiniStat label="Item" value={items.length} onClick={() => go("wardrobe")} />
           <MiniStat label="Dipakai" value={totalWears} onClick={() => go("dashboard")} />
-          <MiniStat label="Skor gaya" value={Math.round(score.overall)} onClick={() => go("rank")} />
+          <MiniStat label="Skor gaya" value={Math.round(score.overall)} onClick={() => go("community")} />
         </div>
 
         {/* shortcuts */}

@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { X, Check, MapPin, Star, Tag, Store, Navigation, ExternalLink, ShoppingBag, Shirt, Banknote, Clock } from "lucide-react";
+import { X, Check, MapPin, Star, Tag, Store, Navigation, ExternalLink, ShoppingBag, Banknote, Clock } from "lucide-react";
 import { T, fontDisplay } from "../../theme/tokens";
 import { Header, Card, Chip, Button, EmptyState } from "../../components/ui";
+import { GarmentPhoto } from "../../components/illustrations";
 import { CATEGORIES } from "../../data/reference";
 import { THRIFT_LISTINGS, B2B_ADS, CONDITIONS, suggestedPrice, adForCategory } from "../../data/thrift";
 import { MOCK_USERS } from "../../data/mock";
@@ -9,13 +10,8 @@ import { sound } from "../../lib/sound";
 
 const rp = (n) => `Rp ${Number(n).toLocaleString("id-ID")}`;
 
-function Garment({ hex, size = "w-full h-36" }) {
-  return (
-    <div className={`${size} rounded-2xl flex items-center justify-center relative overflow-hidden`} style={{ background: hex }}>
-      <div className="absolute w-16 h-16 rounded-2xl rotate-12" style={{ background: "rgba(255,255,255,.14)" }} />
-      <Shirt size={30} color="rgba(255,255,255,0.55)" />
-    </div>
-  );
+function Garment({ item, size = "w-full h-36" }) {
+  return <GarmentPhoto category={item?.category} color={item?.color} photoKey={item?.id} size={size} />;
 }
 
 /* ---- Sponsored B2B ad card (inline, jelas ditandai, tidak popup) ---- */
@@ -27,7 +23,7 @@ function AdCard({ ad }) {
         <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,.22)", color: "#fff" }}>Sponsored</span>
       </div>
       <div className="p-4 flex items-center gap-3">
-        <Garment hex={ad.accent} size="w-16 h-16" />
+        <GarmentPhoto category={ad.category} photoKey={ad.brand} size="w-16 h-16" />
         <div className="flex-1">
           <p className="text-[11px] font-semibold" style={{ color: T.navySoft }}>{ad.tagline}</p>
           <p className="font-bold text-sm" style={{ color: T.navy }}>{ad.item}</p>
@@ -62,7 +58,7 @@ function BuyModal({ listing, onClose, onBuy }) {
     <div className="fixed inset-0 z-[55] flex items-end sm:items-center justify-center" style={{ background: "rgba(27,31,59,0.55)" }}>
       <div className="w-full sm:max-w-sm rounded-t-3xl sm:rounded-3xl p-5 max-h-[92vh] overflow-y-auto" style={{ background: T.bg }}>
         <div className="flex justify-end"><button onClick={onClose} className="cc-press p-2 rounded-full" style={{ background: T.white }}><X size={18} /></button></div>
-        <Garment hex={listing.color.hex} size="w-full h-44" />
+        <Garment item={listing} size="w-full h-44" />
         <p className="font-bold text-lg mt-3" style={{ ...fontDisplay, color: T.navy }}>{listing.name}</p>
         <div className="flex items-center gap-2 mt-1 mb-3">
           <span className="font-extrabold text-xl" style={{ color: T.navy }}>{rp(listing.price)}</span>
@@ -193,7 +189,7 @@ export function ThriftScreen({ items, setItems, thriftOrders, setThriftOrders, o
               {feed.map((it, idx) => (
                 <div key={it.id}>
                   <button onClick={() => { sound.tap(); setBuyItem(it); }} className="cc-press w-full text-left rounded-3xl overflow-hidden flex gap-3 p-3" style={{ background: T.white, boxShadow: "0 10px 24px -18px rgba(27,31,59,.35)" }}>
-                    <Garment hex={it.color.hex} size="w-24 h-24 shrink-0" />
+                    <Garment item={it} size="w-24 h-24 shrink-0" />
                     <div className="flex-1 min-w-0 py-0.5">
                       <p className="font-bold text-sm truncate" style={{ color: T.navy }}>{it.name}</p>
                       <div className="flex items-center gap-1.5 mt-0.5">
@@ -253,7 +249,7 @@ export function ThriftScreen({ items, setItems, thriftOrders, setThriftOrders, o
             <div className="flex flex-col gap-3">
               {thriftOrders.map((o) => (
                 <Card key={o.id} className="flex gap-3" style={{ display: "flex" }}>
-                  <Garment hex={o.listing.color.hex} size="w-14 h-14 shrink-0" />
+                  <Garment item={o.listing} size="w-14 h-14 shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold truncate" style={{ color: T.navy }}>{o.listing.name}</p>
                     <p className="text-xs" style={{ color: T.navySoft }}>{rp(o.listing.price)} · dari {o.listing.owner.name.split(" ")[0]}</p>

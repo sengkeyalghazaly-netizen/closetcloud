@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { T } from "../theme/tokens";
+import { garmentPhoto, personPhoto } from "../data/photos";
 
 /* ============ BRAND ILLUSTRATIONS (no emoji, custom-drawn) ============
  * Clean geometric SVGs in the ClosetCloud palette. One place to swap the
@@ -161,6 +163,28 @@ export function GarmentImage({ category, color, size = "w-full h-36" }) {
         </defs>
         <CategoryGarment category={category} c={c} />
       </svg>
+    </div>
+  );
+}
+
+/* Real garment photo (Unsplash) with graceful SVG fallback on load error. */
+export function GarmentPhoto({ category, color, photoKey, size = "w-full h-36", rounded = "rounded-2xl" }) {
+  const [failed, setFailed] = useState(false);
+  if (failed) return <GarmentImage category={category} color={color} size={`${size} ${rounded}`} />;
+  return (
+    <div className={`${size} ${rounded} overflow-hidden`} style={{ background: "#EEF0F6" }}>
+      <img src={garmentPhoto(category, photoKey || category)} alt={category} loading="lazy" className="w-full h-full object-cover" onError={() => setFailed(true)} />
+    </div>
+  );
+}
+
+/* Real street-style/person photo with a coloured fallback tile. */
+export function PersonPhoto({ photoKey, size = "w-full h-full", rounded = "rounded-xl", tint = "#C9B8E8" }) {
+  const [failed, setFailed] = useState(false);
+  if (failed) return <div className={`${size} ${rounded}`} style={{ background: tint }} />;
+  return (
+    <div className={`${size} ${rounded} overflow-hidden`} style={{ background: tint }}>
+      <img src={personPhoto(photoKey)} alt="street style" loading="lazy" className="w-full h-full object-cover" onError={() => setFailed(true)} />
     </div>
   );
 }

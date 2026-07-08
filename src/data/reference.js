@@ -60,3 +60,55 @@ export const PLACES = [
   { key: "Travel", style: "Kasual" }, { key: "Acara Formal", style: "Formal" },
 ];
 export const GLOBAL_STYLES = ["Semua", "Streetwear", "Minimalist", "Old Money", "Y2K", "Vintage/Retro", "Smart Casual", "Techwear", "Dark Academia", "Korean Style", "Athleisure", "Bohemian", "Batik/Tradisional"];
+
+/* --- Tipografi & aksen per style: bikin bagian Outfit terasa "sesuai gaya" --- */
+const SERIF = "'Playfair Display', Georgia, serif";
+const MONO = "'Space Mono', 'Courier New', monospace";
+const DISPLAY = "'Clash Display', sans-serif";
+const BODY = "'Plus Jakarta Sans', sans-serif";
+export const STYLE_THEME = {
+  Streetwear: { font: DISPLAY, accent: "#4C6EA0", upper: true, tracking: "0.03em" },
+  Minimalist: { font: BODY, accent: "#8A8FA8", tracking: "0.01em" },
+  "Old Money": { font: SERIF, accent: "#B78A3F" },
+  Y2K: { font: DISPLAY, accent: "#D9488F" },
+  "Vintage/Retro": { font: SERIF, accent: "#B5533C" },
+  "Smart Casual": { font: BODY, accent: "#5B7A9D" },
+  Techwear: { font: MONO, accent: "#3A3A40", upper: true, tracking: "0.05em" },
+  "Dark Academia": { font: SERIF, accent: "#6B4A32", italic: true },
+  "Korean Style": { font: BODY, accent: "#D98BA6" },
+  Athleisure: { font: DISPLAY, accent: "#5FA88F", upper: true },
+  Bohemian: { font: SERIF, accent: "#B98A4B", italic: true },
+  "Batik/Tradisional": { font: SERIF, accent: "#8B5E3C" },
+};
+
+/* --- Atribut scan per kategori (opsi berbeda tiap jenis, bukan default sama) --- */
+export const CATEGORY_FIELDS = {
+  Atasan: [
+    { key: "style", label: "Gaya", options: STYLE_TAGS },
+    { key: "material", label: "Bahan", options: ["Katun", "Linen", "Rayon", "Polyester", "Rajut", "Denim"] },
+    { key: "pattern", label: "Motif", options: PATTERNS },
+    { key: "sleeve", label: "Lengan", options: ["Lengan pendek", "Lengan panjang", "Tanpa lengan"] },
+  ],
+  Bawahan: [
+    { key: "style", label: "Gaya", options: STYLE_TAGS },
+    { key: "material", label: "Bahan", options: ["Denim", "Katun", "Chino", "Linen", "Polyester", "Kulit sintetis"] },
+    { key: "fit", label: "Potongan", options: ["Slim", "Regular", "Loose", "Wide-leg"] },
+    { key: "length", label: "Panjang", options: ["Pendek", "Selutut", "Panjang"] },
+  ],
+  Outerwear: [
+    { key: "style", label: "Gaya", options: STYLE_TAGS },
+    { key: "type", label: "Jenis", options: ["Jaket", "Blazer", "Cardigan", "Hoodie", "Coat"] },
+    { key: "material", label: "Bahan", options: ["Denim", "Kulit sintetis", "Wol", "Fleece", "Parasut"] },
+    { key: "pattern", label: "Motif", options: PATTERNS },
+  ],
+  Sepatu: [
+    { key: "style", label: "Gaya", options: STYLE_TAGS },
+    { key: "type", label: "Jenis", options: ["Sneakers", "Formal", "Boots", "Sandal", "Flat", "Heels"] },
+    { key: "material", label: "Bahan", options: ["Kanvas", "Kulit", "Suede", "Mesh", "Karet"] },
+  ],
+  Aksesori: [
+    { key: "type", label: "Jenis", options: ["Tas", "Topi", "Ikat pinggang", "Kacamata", "Jam", "Syal", "Kalung"] },
+    { key: "style", label: "Gaya", options: STYLE_TAGS },
+    { key: "material", label: "Bahan", options: ["Kulit", "Kanvas", "Logam", "Kain", "Plastik"] },
+  ],
+};

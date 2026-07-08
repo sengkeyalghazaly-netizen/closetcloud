@@ -4,8 +4,9 @@ import { T, fontDisplay } from "../../theme/tokens";
 import { Header, Card, Chip, Button, EmptyState } from "../../components/ui";
 import { QuotaBanner } from "../../components/QuotaBanner";
 import { RewardedAdModal } from "../premium/RewardedAdModal";
-import { Mannequin } from "../../components/Mannequin";
-import { WEATHER_OPTIONS, PLACES, MOODS, GLOBAL_STYLES, COLORS_POOL } from "../../data/reference";
+import { MannequinStage } from "../../components/Mannequin";
+import { PersonPhoto } from "../../components/illustrations";
+import { WEATHER_OPTIONS, PLACES, MOODS, GLOBAL_STYLES, COLORS_POOL, STYLE_THEME } from "../../data/reference";
 import { TRENDS } from "../../data/trends";
 import { generateOutfitsV2 } from "../../lib/outfits";
 import { fetchWeather } from "../../lib/weather";
@@ -61,6 +62,7 @@ export function OutfitScreen({ items, setItems, likes, setLikes, plan, usage, us
   };
 
   const WIcon = WEATHER_ICON[weatherKey] || Sun;
+  const theme = styleGlobal !== "Semua" ? STYLE_THEME[styleGlobal] : null;
   const enough = items.filter((i) => i.category === "Atasan").length > 0 && items.filter((i) => i.category === "Bawahan").length > 0;
 
   return (
@@ -79,12 +81,14 @@ export function OutfitScreen({ items, setItems, likes, setLikes, plan, usage, us
             const on = styleGlobal === tr.style;
             return (
               <button key={tr.tag} onClick={() => { sound.tap(); setStyleGlobal(on ? "Semua" : tr.style); }}
-                className="cc-press shrink-0 rounded-2xl p-3 text-left w-40" style={{ background: on ? T.navy : T.white, border: on ? "none" : "1px solid #E9EBF2", boxShadow: "0 8px 20px -16px rgba(27,31,59,.4)" }}>
-                <span className="w-8 h-8 rounded-xl flex items-center justify-center mb-2" style={{ background: `${tr.hue}2e` }}>
-                  <span className="w-3.5 h-3.5 rounded-full" style={{ background: tr.hue }} />
-                </span>
-                <p className="font-bold text-sm leading-tight" style={{ color: on ? "#fff" : T.navy }}>{tr.tag}</p>
-                <p className="text-[11px] leading-snug" style={{ color: on ? "rgba(255,255,255,.7)" : T.navySoft }}>{tr.desc}</p>
+                className="cc-press shrink-0 rounded-2xl overflow-hidden text-left w-40" style={{ background: on ? T.navy : T.white, border: on ? "none" : "1px solid #E9EBF2", boxShadow: on ? `0 10px 24px -14px ${tr.hue}` : "0 8px 20px -16px rgba(27,31,59,.4)" }}>
+                <div className="relative h-24">
+                  <PersonPhoto photoKey={tr.tag} size="w-full h-24" rounded="rounded-none" tint={tr.hue} />
+                  <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, transparent 40%, rgba(11,13,26,.7))" }} />
+                  <span className="absolute left-2.5 bottom-2 font-bold text-sm text-white leading-tight" style={{ ...fontDisplay }}>{tr.tag}</span>
+                  {on && <span className="absolute top-2 right-2 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: T.mint }}><Check size={12} color={T.navy} /></span>}
+                </div>
+                <p className="text-[11px] leading-snug px-2.5 py-2" style={{ color: on ? "rgba(255,255,255,.75)" : T.navySoft }}>{tr.desc}</p>
               </button>
             );
           })}
@@ -153,9 +157,11 @@ export function OutfitScreen({ items, setItems, likes, setLikes, plan, usage, us
             subtitle="Scan minimal 1 atasan dan 1 bawahan dulu supaya Kai bisa meracik outfit." action={null} />
         ) : (
           <>
-            <div className="flex items-center justify-between mb-3">
-              <p className="font-bold" style={{ ...fontDisplay, color: T.navy }}>Diproyeksikan buatmu</p>
-              <button onClick={regenerate} className="cc-press flex items-center gap-1 text-sm font-semibold" style={{ color: T.lavenderDeep }}>
+            <div className="flex items-center justify-between mb-3 gap-2">
+              <p className="font-bold text-lg truncate" style={{ fontFamily: theme?.font || fontDisplay.fontFamily, color: theme?.accent || T.navy, textTransform: theme?.upper ? "uppercase" : "none", letterSpacing: theme?.tracking || "normal", fontStyle: theme?.italic ? "italic" : "normal" }}>
+                {theme ? styleGlobal : "Diproyeksikan buatmu"}
+              </p>
+              <button onClick={regenerate} className="cc-press flex items-center gap-1 text-sm font-semibold shrink-0" style={{ color: T.lavenderDeep }}>
                 <RefreshCw size={14} /> Generate ulang
               </button>
             </div>
@@ -169,10 +175,10 @@ export function OutfitScreen({ items, setItems, likes, setLikes, plan, usage, us
               {outfits.map((combo, idx) => (
                 <div key={combo.id} className="cc-pop-in rounded-3xl overflow-hidden" style={{ background: T.white, boxShadow: "0 14px 34px -22px rgba(27,31,59,.4)" }}>
                   <div className="flex gap-3 p-4" style={{ background: `linear-gradient(135deg, ${idx % 2 ? "#F3EEFB" : T.mintLight}, #FFFFFF)` }}>
-                    <div className="shrink-0"><Mannequin outfit={combo} size={116} /></div>
+                    <div className="shrink-0"><MannequinStage outfit={combo} size={116} /></div>
                     <div className="flex-1 flex flex-col">
                       <div className="flex items-start justify-between">
-                        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold" style={{ background: T.navy, color: "#fff" }}>Look {idx + 1}</span>
+                        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold" style={{ background: theme?.accent || T.navy, color: "#fff", fontFamily: theme?.font || undefined }}>Look {idx + 1}</span>
                         <button onClick={() => toggleLike(combo)} className="cc-press p-1">
                           <Heart size={20} color={T.coral} fill={likes.includes(likeKey(combo)) ? T.coral : "none"} />
                         </button>

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Camera, X, RefreshCw, Check, Image as ImageIcon, Zap, Sparkles } from "lucide-react";
 import { T, fontDisplay } from "../../theme/tokens";
 import { Chip, Button } from "../../components/ui";
-import { CATEGORIES, STYLE_TAGS, MATERIALS, PATTERNS, COLORS_POOL } from "../../data/reference";
+import { CATEGORIES, COLORS_POOL, CATEGORY_FIELDS } from "../../data/reference";
 import { simulateAIRecognition } from "../../lib/recognition";
 import { genId } from "../../lib/utils";
 import { sound } from "../../lib/sound";
@@ -173,10 +173,10 @@ export function AddItemModal({ onClose, onSave }) {
             <p className="text-sm mb-4 cc-fade-up" style={{ color: T.navySoft }}>Cek & sesuaikan kalau ada yang meleset — tinggal ketuk.</p>
 
             <div className="cc-stagger flex flex-col gap-4">
-              <EditRow label="Kategori" value={category} onChange={setCategory} options={CATEGORIES} />
-              <EditRow label="Gaya" value={detected.style} onChange={(v) => setDetected({ ...detected, style: v })} options={STYLE_TAGS} />
-              <EditRow label="Bahan" value={detected.material} onChange={(v) => setDetected({ ...detected, material: v })} options={MATERIALS} />
-              <EditRow label="Motif" value={detected.pattern} onChange={(v) => setDetected({ ...detected, pattern: v })} options={PATTERNS} />
+              <EditRow label="Kategori" value={category} onChange={(v) => { setCategory(v); setDetected((d) => ({ ...simulateAIRecognition(v), color: d.color })); }} options={CATEGORIES} />
+              {(CATEGORY_FIELDS[category] || []).map((f) => (
+                <EditRow key={f.key} label={f.label} value={detected[f.key]} onChange={(v) => setDetected({ ...detected, [f.key]: v })} options={f.options} />
+              ))}
 
               <div>
                 <label className="text-xs font-bold" style={{ color: T.navySoft }}>Warna dominan</label>
@@ -215,9 +215,10 @@ export function AddItemModal({ onClose, onSave }) {
             <div className="flex gap-2 mt-5">
               <Button variant="outline" icon={RefreshCw} onClick={retry}>Scan ulang</Button>
               <Button full icon={Check} onClick={() => { sound.success(); onSave({
+                ...detected,
                 id: genId(), name: name || `${category} ${detected.color.name.toLowerCase()}`,
-                category, style: detected.style, material: detected.material, pattern: detected.pattern,
-                color: detected.color, price: Number(price) || 50000, image: preview, wearCount: 0, lastWorn: null, wearHistory: [],
+                category, pattern: detected.pattern || "Polos", material: detected.material || "Katun",
+                price: Number(price) || 50000, image: preview, wearCount: 0, lastWorn: null, wearHistory: [],
               }); }}>Simpan ke Lemari</Button>
             </div>
           </div>

@@ -6,7 +6,7 @@ import { TierBadge } from "../../components/TierBadge";
 import { searchUsers } from "../../data/community";
 import { sound } from "../../lib/sound";
 
-export function DiscoverScreen({ onOpenUser, onBack, follows, setFollows }) {
+export function DiscoverScreen({ onOpenUser, onBack, follows, setFollows, embedded }) {
   const [q, setQ] = useState("");
   const results = searchUsers(q);
   const isFollowing = (u) => follows.includes(u.handle);
@@ -16,8 +16,8 @@ export function DiscoverScreen({ onOpenUser, onBack, follows, setFollows }) {
   };
 
   return (
-    <div className="pb-28">
-      <Header title="Jelajah Komunitas" subtitle="Cari & ikuti gaya orang lain" onBack={onBack} />
+    <div className={embedded ? "" : "pb-28"}>
+      {!embedded && <Header title="Jelajah Komunitas" subtitle="Cari & ikuti gaya orang lain" onBack={onBack} />}
       <div className="px-4">
         <div className="flex items-center gap-2.5 rounded-2xl px-4 mb-4" style={{ background: T.white, border: "1.5px solid #E3E6F0" }}>
           <Search size={18} color={T.navySoft} />

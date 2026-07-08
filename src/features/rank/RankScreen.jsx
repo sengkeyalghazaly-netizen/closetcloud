@@ -21,7 +21,7 @@ function ScoreBar({ label, value }) {
 }
 
 /* ============ STYLE RANK & LEADERBOARD ============ */
-export function RankScreen({ items, optIn, setOptIn, userCity, userProvince, onBack }) {
+export function RankScreen({ items, optIn, setOptIn, userCity, userProvince, onBack, embedded }) {
   const [showSheet, setShowSheet] = useState(optIn === null);
   const [board, setBoard] = useState("overall"); // overall | stylish | collection | region
   const score = useMemo(() => computeStyleScore(items), [items]);
@@ -38,8 +38,8 @@ export function RankScreen({ items, optIn, setOptIn, userCity, userProvince, onB
   const boards = [["overall", "Top Overall"], ["stylish", "Paling Stylish"], ["collection", "Koleksi"], ["region", "Top Wilayah"]];
 
   return (
-    <div className="pb-24">
-      <Header title="Style Rank" subtitle="Peringkat gaya komunitas ClosetCloud" onBack={onBack} />
+    <div className={embedded ? "" : "pb-24"}>
+      {!embedded && <Header title="Style Rank" subtitle="Peringkat gaya komunitas ClosetCloud" onBack={onBack} />}
 
       {/* Kartu tier user */}
       <div className="px-4">
