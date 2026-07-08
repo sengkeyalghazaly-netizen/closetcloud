@@ -185,10 +185,17 @@ export function OutfitScreen({ items, setItems, likes, setLikes, plan, usage, us
                     </span>
                   </div>
                   <div className="px-4 pb-4 pt-3">
-                    <p className="text-xs mb-2.5" style={{ color: T.navySoft }}>{combo.reason}</p>
-                    <div className="flex gap-1.5 mb-3">
+                    <p className="text-xs mb-3" style={{ color: T.navySoft }}>{combo.reason}</p>
+                    <p className="text-[11px] font-bold mb-2" style={{ color: T.navySoft }}>Item dari lemarimu di look ini</p>
+                    <div className="flex gap-2.5 overflow-x-auto cc-noscroll mb-3.5 pb-1">
                       {[combo.top, combo.outer, combo.bottom, combo.shoe, combo.acc].filter(Boolean).map((it) => (
-                        <img key={it.id} src={it.image} className="w-10 h-10 rounded-lg object-cover" style={{ boxShadow: "0 2px 6px -2px rgba(27,31,59,.3)" }} />
+                        <div key={it.id} className="shrink-0" style={{ width: 68 }}>
+                          <div className="w-[68px] h-[68px] rounded-xl overflow-hidden" style={{ boxShadow: "0 4px 12px -6px rgba(27,31,59,.35)" }}>
+                            <img src={it.image} className="w-full h-full object-cover" />
+                          </div>
+                          <p className="text-[10px] font-semibold mt-1 leading-tight truncate" style={{ color: T.navy }}>{it.name}</p>
+                          <p className="text-[9px] leading-tight" style={{ color: T.navySoft }}>{it.category}</p>
+                        </div>
                       ))}
                     </div>
                     <Button full variant={worn === combo.id ? "dark" : "primary"} icon={worn === combo.id ? Check : Shirt} onClick={() => markWorn(combo)}>
