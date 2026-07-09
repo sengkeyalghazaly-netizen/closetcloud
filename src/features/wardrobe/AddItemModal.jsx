@@ -25,7 +25,8 @@ export function AddItemModal({ onClose, onSave }) {
   const [camState, setCamState] = useState("idle"); // idle | on | denied
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
-  const fileRef = useRef(null);
+  const fileRef = useRef(null);       // input kamera native (capture)
+  const galleryRef = useRef(null);    // input galeri (tanpa capture)
   const streamRef = useRef(null);
 
   const stopCamera = useCallback(() => {
@@ -33,13 +34,30 @@ export function AddItemModal({ onClose, onSave }) {
   }, []);
 
   const startCamera = useCallback(async () => {
-    if (!navigator.mediaDevices?.getUserMedia) { setCamState("denied"); return; }
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
-      streamRef.current = stream;
-      if (videoRef.current) { videoRef.current.srcObject = stream; await videoRef.current.play().catch(() => {}); }
-      setCamState("on");
-    } catch { setCamState("denied"); }
+    const md = navigator.mediaDevices;
+    if (!md?.getUserMedia || (typeof window !== "undefined" && window.isSecureContext === false)) { setCamState("denied"); return; }
+    setCamState("idle");
+    // Coba kamera belakang dulu; kalau perangkat tak punya (mis. laptop) atau
+    // constraint ditolak, mundur ke kamera apa saja. Jangan langsung menyerah
+    // hanya karena "environment" tak tersedia — itulah sebab kamera "mati".
+    const attempts = [
+      { video: { facingMode: { ideal: "environment" } }, audio: false },
+      { video: true, audio: false },
+    ];
+    for (const constraints of attempts) {
+      try {
+        const stream = await md.getUserMedia(constraints);
+        streamRef.current = stream;
+        if (videoRef.current) { videoRef.current.srcObject = stream; await videoRef.current.play().catch(() => {}); }
+        setCamState("on");
+        return;
+      } catch (e) {
+        // Izin ditolak user → tak ada gunanya coba constraint lain.
+        if (e && (e.name === "NotAllowedError" || e.name === "SecurityError")) break;
+        // OverconstrainedError / NotFoundError → lanjut coba constraint longgar.
+      }
+    }
+    setCamState("denied");
   }, []);
 
   useEffect(() => {
@@ -93,7 +111,9 @@ export function AddItemModal({ onClose, onSave }) {
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col" style={{ background: step === "capture" ? "#0B0D1A" : T.bg }}>
-      <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => handleFile(e.target.files[0])} />
+      {/* input kamera native (buka kamera HP langsung) + input galeri terpisah */}
+      <input ref={fileRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => { handleFile(e.target.files[0]); e.target.value = ""; }} />
+      <input ref={galleryRef} type="file" accept="image/*" className="hidden" onChange={(e) => { handleFile(e.target.files[0]); e.target.value = ""; }} />
       <canvas ref={canvasRef} className="hidden" />
 
       {/* ---------- CAPTURE ---------- */}
@@ -110,9 +130,21 @@ export function AddItemModal({ onClose, onSave }) {
                   {camState === "denied" ? "Kamera belum aktif" : "Menyalakan kamera…"}
                 </p>
                 <p className="text-sm mb-5" style={{ color: "rgba(255,255,255,.6)" }}>
-                  {camState === "denied" ? "Izinkan kamera di browser, atau upload dari galeri." : "Sebentar ya."}
+                  {camState === "denied" ? "Foto langsung pakai kamera HP, atau pilih dari galeri." : "Sebentar ya."}
                 </p>
-                {camState === "denied" && <Button icon={ImageIcon} onClick={() => fileRef.current?.click()}>Upload dari galeri</Button>}
+                {camState === "denied" && (
+                  <div className="flex flex-col items-center gap-3">
+                    <Button icon={Camera} onClick={() => fileRef.current?.click()}>Foto pakai kamera</Button>
+                    <div className="flex items-center gap-5 text-sm font-semibold">
+                      <button onClick={() => startCamera()} className="cc-press flex items-center gap-1.5" style={{ color: "rgba(255,255,255,.75)" }}>
+                        <RefreshCw size={14} /> Coba kamera langsung
+                      </button>
+                      <button onClick={() => galleryRef.current?.click()} className="cc-press flex items-center gap-1.5" style={{ color: "rgba(255,255,255,.75)" }}>
+                        <ImageIcon size={15} /> Galeri
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -137,7 +169,7 @@ export function AddItemModal({ onClose, onSave }) {
             </div>
             {error && <p className="text-sm font-medium mb-2 text-center" style={{ color: T.coral }}>{error}</p>}
             <div className="flex items-center justify-between px-4">
-              <button onClick={() => fileRef.current?.click()} className="cc-press w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: "rgba(255,255,255,.12)" }}>
+              <button onClick={() => galleryRef.current?.click()} className="cc-press w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: "rgba(255,255,255,.12)" }}>
                 <ImageIcon size={22} color="#fff" />
               </button>
               <button onClick={capture} disabled={camState !== "on"} className="cc-press w-[74px] h-[74px] rounded-full flex items-center justify-center disabled:opacity-40" style={{ background: "#fff", boxShadow: "0 0 0 5px rgba(255,255,255,.25)" }}>
