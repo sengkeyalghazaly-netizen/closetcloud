@@ -13,7 +13,7 @@ import { StyleResult } from "./StyleResult";
 
 /* ============ ONBOARDING FLOW ============
  * intro → login → quiz → style result → scan first items → reward outfit */
-export function Onboarding({ onFinish }) {
+export function Onboarding({ onFinish, demoItems = [] }) {
   const [stage, setStage] = useState("intro");
   const [profile, setProfile] = useState({});
   const [items, setItems] = useState([]);
@@ -23,7 +23,7 @@ export function Onboarding({ onFinish }) {
   if (stage === "login") return <Login onBack={() => setStage("intro")} onLogin={(u) => { setProfile((p) => ({ ...p, ...u })); setStage("quiz"); }} />;
   if (stage === "quiz") return <StyleQuiz onBack={() => setStage("login")} onDone={(a) => { setProfile((p) => ({ ...p, ...a })); setStage("result"); }} />;
   if (stage === "result") return <StyleResult profile={profile} onContinue={() => setStage("scan")} />;
-  if (stage === "reward") return <RewardScreen items={items} profile={profile} onContinue={() => { sound.success(); onFinish(items, profile); }} />;
+  if (stage === "reward") return <RewardScreen items={items} demoItems={demoItems} profile={profile} onContinue={() => { sound.success(); onFinish(items, profile); }} />;
 
   // scan stage
   return (
@@ -37,9 +37,9 @@ export function Onboarding({ onFinish }) {
         </div>
       </div>
 
-      <p className="cc-fade-up text-xs font-bold mt-3" style={{ color: T.lavenderDeep }}>ISI LEMARI PERTAMA</p>
-      <p className="cc-fade-up font-extrabold text-[23px] leading-tight" style={{ ...fontDisplay, color: T.navy }}>Scan 3 baju andalanmu</p>
-      <p className="cc-fade-up text-sm mb-5" style={{ color: T.navySoft }}>Atasan, bawahan, sepatu — biar Kai bisa langsung meracik outfit pertamamu.</p>
+      <p className="cc-fade-up text-xs font-bold mt-3" style={{ color: T.lavenderDeep }}>TAMBAH BAJUMU (OPSIONAL)</p>
+      <p className="cc-fade-up font-extrabold text-[23px] leading-tight" style={{ ...fontDisplay, color: T.navy }}>Scan baju favoritmu</p>
+      <p className="cc-fade-up text-sm mb-5" style={{ color: T.navySoft }}>Lemarimu sudah kami isi contoh biar bisa langsung eksplor. Tambah punyamu sekarang, atau lewati — bisa scan kapan saja lewat menu Lemari.</p>
 
       {items.length === 0 ? (
         <EmptyState icon={Camera} title="Belum ada item" subtitle="Ketuk tombol di bawah untuk mulai scan baju pertamamu."
@@ -59,8 +59,8 @@ export function Onboarding({ onFinish }) {
 
       <div className="flex-1" />
       <div className="pb-9 pt-3">
-        <Button full disabled={items.length < 3} icon={items.length < 3 ? undefined : ArrowRight} onClick={() => setStage("reward")} style={{ paddingTop: 15, paddingBottom: 15, fontSize: 16 }}>
-          {items.length < 3 ? `Scan ${3 - items.length} lagi untuk lanjut` : "Lihat outfit pertamaku"}
+        <Button full icon={ArrowRight} onClick={() => setStage("reward")} style={{ paddingTop: 15, paddingBottom: 15, fontSize: 16 }}>
+          {items.length ? "Lihat outfit pertamaku" : "Lewati — lemari sudah terisi"}
         </Button>
       </div>
 
@@ -69,8 +69,11 @@ export function Onboarding({ onFinish }) {
   );
 }
 
-function RewardScreen({ items, profile, onContinue }) {
-  const outfits = useMemo(() => generateOutfits(items, "sejuk", "Kuliah / kerja santai"), [items]);
+function RewardScreen({ items, demoItems = [], profile, onContinue }) {
+  // Kalau user tak scan apa pun, racik outfit pertama dari lemari contoh yang
+  // sudah ter-seed — jadi layar reward tetap penuh, bukan kosong.
+  const base = items.length ? items : demoItems;
+  const outfits = useMemo(() => generateOutfits(base, "sejuk", "Kuliah / kerja santai"), [base]);
   const combo = outfits[0];
   return (
     <div className="min-h-screen flex flex-col px-6 pt-10 pb-9 items-center text-center" style={{ background: T.bg }}>

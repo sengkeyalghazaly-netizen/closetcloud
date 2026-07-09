@@ -90,7 +90,14 @@ export default function App() {
   const watchAd = () => setAdUsage((u) => { const c = u.date === todayKey() ? u.count : 0; return { date: todayKey(), count: c + 1 }; });
 
   if (!onboarded) {
-    return <Onboarding onFinish={(seedItems, userProfile) => { setItems(seedItems); if (userProfile) setProfile(userProfile); setOnboarded(true); }} />;
+    // Pengguna baru mengisi onboarding (quiz) dulu. Data demo sudah ter-seed,
+    // jadi jangan timpa lemari — cukup gabungkan: item baru (kalau ada) di depan
+    // isi lemari contoh, dan jawaban quiz menimpa profil (nama/gaya/warna user).
+    return <Onboarding demoItems={items} onFinish={(scannedItems, userProfile) => {
+      if (scannedItems?.length) setItems((prev) => [...scannedItems, ...prev]);
+      if (userProfile) setProfile((prev) => ({ ...(prev || {}), ...userProfile }));
+      setOnboarded(true);
+    }} />;
   }
 
   const NAV = [

@@ -47,7 +47,10 @@ const SETTINGS = { notifOutfit: true, notifSwap: true, notifEvent: true, appeara
 
 export function seedDemo() {
   seedOnce({
-    onboarded: true,
+    // Sengaja false: pengguna baru WAJIB lewati onboarding (quiz) dulu. Tapi
+    // semua data di bawah tetap ter-seed, jadi begitu masuk, app sudah "terisi"
+    // seperti sudah pernah dipakai (lemari, riwayat pakai, swap, thrift, chat).
+    onboarded: false,
     profile: {
       name: "Kirana", email: "kirana@closetcloud.id", provider: "email",
       gender: "Wanita", age: "23–27",
