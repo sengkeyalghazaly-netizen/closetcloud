@@ -7,7 +7,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: "autoUpdate", // versi baru otomatis aktif tanpa user harus clear cache
-      includeAssets: ["icon.svg"],
+      includeAssets: ["brand-logo.jpg", "pwa-192.png", "pwa-512.png"],
       manifest: {
         name: "ClosetCloud — Your Personal AI Stylist",
         short_name: "ClosetCloud",
@@ -20,7 +20,7 @@ export default defineConfig({
         start_url: "/",
         scope: "/",
         icons: [
-          { src: "icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
+          { src: "pwa-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
           { src: "pwa-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
           { src: "pwa-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
         ],

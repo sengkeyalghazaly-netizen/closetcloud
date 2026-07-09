@@ -113,7 +113,7 @@ export default function App() {
       <div className="max-w-md mx-auto min-h-screen relative" style={{ background: dark ? "#1B1F3B" : T.bg }}>
         {route === "home" && <HomeScreen profile={profile} items={items} swapRequests={swapRequests} onGo={navTo} />}
         {route === "wardrobe" && <WardrobeScreen items={items} setItems={setItems} />}
-        {route === "outfit" && <OutfitScreen items={items} setItems={setItems} likes={likes} setLikes={setLikes} plan={plan} usage={usage} useQuota={useQuota} adsLeft={adsLeft} watchAd={watchAd} avatarUrl={profile?.avatarUrl} onUpgrade={() => setPaywall({ reason: "Outfit Generate tanpa batas" })} />}
+        {route === "outfit" && <OutfitScreen items={items} setItems={setItems} likes={likes} setLikes={setLikes} plan={plan} usage={usage} useQuota={useQuota} adsLeft={adsLeft} watchAd={watchAd} onUpgrade={() => setPaywall({ reason: "Outfit Generate tanpa batas" })} />}
         {route === "swap" && <SwapScreen items={items} setItems={setItems} swapRequests={swapRequests} setSwapRequests={setSwapRequests} deposit={deposit} setDeposit={setDeposit} />}
         {route === "thrift" && <ThriftScreen onBack={back} items={items} setItems={setItems} thriftOrders={thriftOrders} setThriftOrders={setThriftOrders} />}
         {route === "community" && <CommunityScreen onBack={back} items={items} optIn={rankOptIn} setOptIn={setRankOptIn} follows={follows} setFollows={setFollows} onOpenUser={(u) => { setViewUser(u); setStack((s) => [...s, "user"]); }} />}

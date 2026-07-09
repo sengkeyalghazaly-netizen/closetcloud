@@ -8,24 +8,26 @@ import { garmentPhoto, personPhoto } from "../data/photos";
 
 const M = T.mint, L = T.lavender, LD = T.lavenderDeep, N = T.navy, S = T.sage, C = T.coral, W = "#FFFFFF";
 
-/* Refined brand mark: cloud meeting an open wardrobe. Swap this component's
- * innards when the official logo arrives — every screen uses <Logo/>. */
+/* Official ClosetCloud brand mark (cloud + open wardrobe). Rendered from the
+ * real logo asset (public/pwa-512.png = cropped cloud mark). Every screen uses
+ * <Logo/>, so swapping the asset here updates branding app-wide. */
 export function Logo({ size = 44, rounded = 14, glow = false }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 100 100" fill="none" style={glow ? { filter: "drop-shadow(0 6px 16px rgba(139,111,206,0.45))" } : undefined}>
-      <defs>
-        <linearGradient id="lg-bg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor={M} /><stop offset="1" stopColor={L} />
-        </linearGradient>
-      </defs>
-      <rect width="100" height="100" rx={rounded * 100 / size} fill="url(#lg-bg)" />
-      <path d="M30 46c-6 0-11-5-11-11s5-11 11-11c1 0 2 0 3 .4C35.5 19 40.5 16 46 16c7 0 13 5.4 14 12.4 5 .5 9 4.8 9 10 0 5.6-4.6 10.2-10.2 10.2H30z" fill={N} transform="translate(2 -1)" />
-      <g stroke={N} strokeWidth="4.5" strokeLinejoin="round" strokeLinecap="round" fill="none">
-        <rect x="30" y="52" width="40" height="30" rx="5" />
-        <line x1="50" y1="52" x2="50" y2="82" />
-        <line x1="42" y1="61" x2="42" y2="67" /><line x1="58" y1="61" x2="58" y2="67" />
-      </g>
-    </svg>
+    <img
+      src="/pwa-512.png"
+      alt="ClosetCloud"
+      width={size}
+      height={size}
+      draggable={false}
+      style={{
+        width: size,
+        height: size,
+        borderRadius: rounded,
+        objectFit: "cover",
+        display: "block",
+        filter: glow ? "drop-shadow(0 6px 16px rgba(139,111,206,0.45))" : undefined,
+      }}
+    />
   );
 }
 

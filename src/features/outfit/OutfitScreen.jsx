@@ -1,10 +1,10 @@
 import { useState, useMemo, useEffect } from "react";
-import { RefreshCw, Sparkles, Heart, Shirt, Check, Lightbulb, Sun, Cloud, CloudRain, TrendingUp, MapPin, MoveHorizontal } from "lucide-react";
+import { RefreshCw, Sparkles, Heart, Shirt, Check, Lightbulb, Sun, Cloud, CloudRain, TrendingUp, MapPin } from "lucide-react";
 import { T, fontDisplay } from "../../theme/tokens";
 import { Header, Card, Chip, Button, EmptyState } from "../../components/ui";
 import { QuotaBanner } from "../../components/QuotaBanner";
 import { RewardedAdModal } from "../premium/RewardedAdModal";
-import { StyleAvatar } from "../../components/avatar/StyleAvatar";
+import { OutfitBoard } from "../../components/outfit/OutfitBoard";
 import { PersonPhoto } from "../../components/illustrations";
 import { WEATHER_OPTIONS, PLACES, MOODS, GLOBAL_STYLES, COLORS_POOL, STYLE_THEME } from "../../data/reference";
 import { TRENDS } from "../../data/trends";
@@ -16,7 +16,7 @@ import { sound } from "../../lib/sound";
 
 const WEATHER_ICON = { panas: Sun, sejuk: Cloud, hujan: CloudRain };
 
-export function OutfitScreen({ items, setItems, likes, setLikes, plan, usage, useQuota, adsLeft, watchAd, avatarUrl, onUpgrade }) {
+export function OutfitScreen({ items, setItems, likes, setLikes, plan, usage, useQuota, adsLeft, watchAd, onUpgrade }) {
   const [showAds, setShowAds] = useState(false);
   const [weatherKey, setWeatherKey] = useState("sejuk");
   const [weatherInfo, setWeatherInfo] = useState(null);
@@ -185,28 +185,13 @@ export function OutfitScreen({ items, setItems, likes, setLikes, plan, usage, us
                     ))}
                   </div>
                   <div className="relative" style={{ background: `linear-gradient(160deg, ${T.mintLight}, #F3EEFB)` }}>
-                    <StyleAvatar outfit={combo} avatarUrl={avatarUrl} bodyConfig={{ skin: "#E8C6A2" }} height={360} />
-                    <button onClick={() => toggleLike(combo)} className="cc-press absolute top-3 right-3 w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,.85)" }}>
+                    <button onClick={() => toggleLike(combo)} className="cc-press absolute top-3 right-3 z-10 w-9 h-9 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,.85)" }}>
                       <Heart size={18} color={T.coral} fill={likes.includes(likeKey(combo)) ? T.coral : "none"} />
                     </button>
-                    <span className="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 py-1 rounded-full" style={{ background: "rgba(255,255,255,.88)" }}>
-                      <MoveHorizontal size={11} color={T.lavenderDeep} /><span className="text-[10px] font-bold" style={{ color: T.lavenderDeep }}>geser putar · cubit zoom · ketuk-2× reset</span>
-                    </span>
+                    <OutfitBoard items={[combo.top, combo.outer, combo.bottom, combo.shoe, combo.acc]} />
                   </div>
                   <div className="px-4 pb-4 pt-3">
                     <p className="text-xs mb-3" style={{ color: T.navySoft }}>{combo.reason}</p>
-                    <p className="text-[11px] font-bold mb-2" style={{ color: T.navySoft }}>Item dari lemarimu di look ini</p>
-                    <div className="flex gap-2.5 overflow-x-auto cc-noscroll mb-3.5 pb-1">
-                      {[combo.top, combo.outer, combo.bottom, combo.shoe, combo.acc].filter(Boolean).map((it) => (
-                        <div key={it.id} className="shrink-0" style={{ width: 68 }}>
-                          <div className="w-[68px] h-[68px] rounded-xl overflow-hidden" style={{ boxShadow: "0 4px 12px -6px rgba(27,31,59,.35)" }}>
-                            <img src={it.image} className="w-full h-full object-cover" />
-                          </div>
-                          <p className="text-[10px] font-semibold mt-1 leading-tight truncate" style={{ color: T.navy }}>{it.name}</p>
-                          <p className="text-[9px] leading-tight" style={{ color: T.navySoft }}>{it.category}</p>
-                        </div>
-                      ))}
-                    </div>
                     <Button full variant={worn === combo.id ? "dark" : "primary"} icon={worn === combo.id ? Check : Shirt} onClick={() => markWorn(combo)}>
                       {worn === combo.id ? "Sudah dipakai hari ini" : "Pakai outfit ini"}
                     </Button>
