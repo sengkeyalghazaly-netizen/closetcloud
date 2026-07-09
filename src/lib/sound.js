@@ -39,6 +39,36 @@ function getCtx() {
   return ctx;
 }
 
+/* Mobile (terutama iOS Safari) mengunci Web Audio sampai ada gesture nyata &
+ * AudioContext mulai "suspended". Buka kunci di interaksi pertama: buat + resume
+ * ctx lalu mainkan buffer senyap, agar blip berikutnya berbunyi. Listener dilepas
+ * begitu ctx running supaya tak menambah beban. */
+function unlockAudio() {
+  const ac = getCtx();
+  if (!ac) return;
+  if (ac.state === "suspended") ac.resume().catch(() => {});
+  try {
+    const src = ac.createBufferSource();
+    src.buffer = ac.createBuffer(1, 1, 22050);
+    src.connect(ac.destination);
+    src.start(0);
+  } catch {
+    /* ignore */
+  }
+}
+
+if (typeof window !== "undefined") {
+  const events = ["pointerdown", "touchstart", "touchend", "mousedown", "keydown"];
+  const onGesture = () => {
+    unlockAudio();
+    if (ctx && ctx.state === "running") events.forEach((ev) => window.removeEventListener(ev, onGesture));
+  };
+  events.forEach((ev) => window.addEventListener(ev, onGesture, { passive: true }));
+}
+
+// Sedikit lebih keras dari sebelumnya supaya terdengar di speaker HP (tetap halus).
+const MASTER = 1.5;
+
 /* one soft sine "blip" */
 function blip(freq, { dur = 0.09, type = "sine", gain = 0.05, when = 0 } = {}) {
   const ac = getCtx();
@@ -49,7 +79,7 @@ function blip(freq, { dur = 0.09, type = "sine", gain = 0.05, when = 0 } = {}) {
   osc.type = type;
   osc.frequency.setValueAtTime(freq, t);
   g.gain.setValueAtTime(0, t);
-  g.gain.linearRampToValueAtTime(gain, t + 0.012);
+  g.gain.linearRampToValueAtTime(gain * MASTER, t + 0.012);
   g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
   osc.connect(g).connect(ac.destination);
   osc.start(t);

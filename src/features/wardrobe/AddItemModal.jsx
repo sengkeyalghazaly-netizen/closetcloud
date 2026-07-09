@@ -47,6 +47,17 @@ export function AddItemModal({ onClose, onSave }) {
     return () => stopCamera();
   }, [step, startCamera, stopCamera]);
 
+  // Pasang stream ke <video> setelah elemennya benar-benar ter-mount. Dulu
+  // <video> digate oleh camState="on", sehingga srcObject di-set saat ref masih
+  // null → kamera menyala tapi layar hitam & tombol jepret tak berfungsi.
+  useEffect(() => {
+    const v = videoRef.current;
+    if (camState === "on" && v && streamRef.current && v.srcObject !== streamRef.current) {
+      v.srcObject = streamRef.current;
+      v.play().catch(() => {});
+    }
+  }, [camState]);
+
   const runScan = (data) => {
     stopCamera();
     setPreview(data);
@@ -89,7 +100,7 @@ export function AddItemModal({ onClose, onSave }) {
       {step === "capture" && (
         <>
           <div className="relative flex-1 overflow-hidden">
-            {camState === "on" && <video ref={videoRef} autoPlay playsInline muted className="absolute inset-0 w-full h-full object-cover" />}
+            <video ref={videoRef} autoPlay playsInline muted className="absolute inset-0 w-full h-full object-cover" style={{ opacity: camState === "on" ? 1 : 0 }} />
             {camState !== "on" && (
               <div className="absolute inset-0 flex flex-col items-center justify-center px-8 text-center" style={{ background: "#0B0D1A" }}>
                 <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ background: "rgba(255,255,255,.08)" }}>
