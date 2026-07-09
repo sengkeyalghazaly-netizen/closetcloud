@@ -24,7 +24,7 @@ export function StyleResult({ profile, onContinue }) {
         {profile.name ? `${profile.name}, ` : ""}si <span style={{ color: T.lavenderDeep }}>{persona}</span>
       </p>
       <p className="cc-fade-up text-sm text-center max-w-xs mb-6" style={{ color: T.navySoft, animationDelay: ".15s" }}>
-        Kai sudah paham seleramu. Sekarang isi lemarimu biar rekomendasinya makin akurat.
+        Ajax sudah paham seleramu. Sekarang isi lemarimu biar rekomendasinya makin akurat.
       </p>
 
       <div className="cc-fade-up w-full rounded-3xl p-5" style={{ background: T.white, boxShadow: "0 18px 44px -22px rgba(27,31,59,.28)", animationDelay: ".2s" }}>

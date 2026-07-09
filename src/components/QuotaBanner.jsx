@@ -1,7 +1,7 @@
 import { Zap } from "lucide-react";
 import { T } from "../theme/tokens";
 
-/* Remaining-quota strip shown atop metered screens (Outfit, Kai). */
+/* Remaining-quota strip shown atop metered screens (Outfit, Ajax). */
 export function QuotaBanner({ remaining, limit, label, onUpgrade }) {
   if (remaining === Infinity) return null;
   const low = remaining <= Math.ceil(limit * 0.34);

@@ -65,6 +65,6 @@ export const FAQ_ITEMS = [
   { q: "Kenapa swap butuh foto verifikasi?", a: "Foto asli dari kamera in-app memastikan keaslian item dan membangun kepercayaan antar pengguna. Listing terverifikasi dapat badge khusus." },
   { q: "Bagaimana skor Style Rank dihitung?", a: "Gabungan jumlah item, nilai koleksi, bobot brand, kelangkaan, dan skor stylish dari AI. Skor stylish (40%) paling berpengaruh." },
   { q: "Apakah saya wajib ikut leaderboard?", a: "Tidak. Leaderboard bersifat opt-in. Skormu tetap dihitung meski kamu memilih privat, dan hanya nama/kota/tier/skor yang publik." },
-  { q: "Apa beda Free dan ClosetCloud+?", a: "Free membatasi scan (30 item), outfit generate (3×/hari), dan chat Kai (10 pesan/hari). ClosetCloud+ membuka semuanya tanpa batas seharga Rp 30.000/bulan." },
+  { q: "Apa beda Free dan ClosetCloud+?", a: "Free membatasi scan (30 item), outfit generate (3×/hari), dan chat Ajax (10 pesan/hari). ClosetCloud+ membuka semuanya tanpa batas seharga Rp 30.000/bulan." },
   { q: "Bagaimana cara membatalkan langganan?", a: "Lewat menu Subscription Management di Profil. Langganan aktif sampai akhir periode berjalan, tanpa penalti." },
 ];

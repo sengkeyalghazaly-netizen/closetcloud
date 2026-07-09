@@ -79,7 +79,7 @@ function RewardScreen({ items, demoItems = [], profile, onContinue }) {
     <div className="min-h-screen flex flex-col px-6 pt-10 pb-9 items-center text-center" style={{ background: T.bg }}>
       <div className="cc-pop-in"><Celebrate size={100} /></div>
       <p className="cc-fade-up font-extrabold text-[26px] leading-tight mt-2 mb-1" style={{ ...fontDisplay, color: T.navy }}>Outfit pertamamu siap!</p>
-      <p className="cc-fade-up text-sm mb-6 max-w-xs" style={{ color: T.navySoft }}>Kai meracik ini dari lemarimu. Selamat datang di ClosetCloud{profile.name ? `, ${profile.name}` : ""}!</p>
+      <p className="cc-fade-up text-sm mb-6 max-w-xs" style={{ color: T.navySoft }}>Ajax meracik ini dari lemarimu. Selamat datang di ClosetCloud{profile.name ? `, ${profile.name}` : ""}!</p>
       {combo && (
         <Card className="cc-fade-up w-full" style={{ animationDelay: ".1s" }}>
           <div className="flex items-center gap-1.5 mb-3"><Sparkles size={15} color={T.lavenderDeep} /><span className="text-xs font-bold" style={{ color: T.navy }}>Rekomendasi hari ini</span></div>

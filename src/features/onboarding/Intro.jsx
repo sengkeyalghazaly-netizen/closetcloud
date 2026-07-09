@@ -7,7 +7,7 @@ import { sound } from "../../lib/sound";
 
 const SLIDES = [
   { Art: IntroWardrobe, tint: "#7FD8BE", title: "Lemari kamu, jadi digital", body: "Foto bajumu sekali, ClosetCloud mengingat semuanya — warna, bahan, kapan terakhir dipakai." },
-  { Art: IntroStylist, tint: "#8B6FCE", title: "Punya stylist pribadi 24/7", body: "Bingung mau pakai apa? Kai meracik outfit dari isi lemarimu sesuai mood, acara, & cuaca hari ini." },
+  { Art: IntroStylist, tint: "#8B6FCE", title: "Punya stylist pribadi 24/7", body: "Bingung mau pakai apa? Ajax meracik outfit dari isi lemarimu sesuai mood, acara, & cuaca hari ini." },
   { Art: IntroCommunity, tint: "#E8917A", title: "Swap, thrift, & terhubung", body: "Pinjam, tukar, atau jual baju yang jarang dipakai. Tampil beda tanpa harus beli baru." },
 ];
 

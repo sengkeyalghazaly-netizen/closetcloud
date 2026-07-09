@@ -34,7 +34,7 @@ export function ProfileScreen({ profile, setProfile, follows = [], items, swapRe
 
   const features = [
     { key: "community", label: "Komunitas", icon: Users, tint: "#8FB8DE" },
-    { key: "kai", label: "Kai", icon: MessageCircle, tint: T.lavenderDeep },
+    { key: "kai", label: "Ajax", icon: MessageCircle, tint: T.lavenderDeep },
     { key: "thrift", label: "Thrift", icon: Store, tint: T.coral },
     { key: "scheduler", label: "Jadwal", icon: CalendarDays, tint: T.sage },
     { key: "analytics", label: "Cost/Wear", icon: Wallet, tint: T.lavender },

@@ -29,7 +29,7 @@ export function Login({ onLogin, onBack }) {
       <div className="flex-1 flex flex-col px-7 pt-4">
         <div className="cc-pop-in mb-5"><Logo size={56} rounded={16} glow /></div>
         <p className="cc-fade-up font-extrabold text-[26px] leading-tight" style={{ ...fontDisplay, color: T.navy }}>Halo! Kenalan dulu yuk</p>
-        <p className="cc-fade-up text-sm mb-7" style={{ color: T.navySoft, animationDelay: ".05s" }}>Biar Kai bisa manggil kamu & nyimpen lemarimu.</p>
+        <p className="cc-fade-up text-sm mb-7" style={{ color: T.navySoft, animationDelay: ".05s" }}>Biar Ajax bisa manggil kamu & nyimpen lemarimu.</p>
 
         {/* Social mock */}
         <div className="flex flex-col gap-2.5 mb-5 cc-stagger">

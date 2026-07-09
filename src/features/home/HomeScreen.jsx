@@ -26,7 +26,7 @@ export function HomeScreen({ profile, items, swapRequests, onGo }) {
     { key: "wardrobe", label: "Scan", icon: Camera, tint: T.mint },
     { key: "outfit", label: "Outfit", icon: Sparkles, tint: T.lavender },
     { key: "swap", label: "Swap", icon: Repeat, tint: T.sage },
-    { key: "kai", label: "Tanya Kai", icon: MessageCircle, tint: T.lavenderDeep },
+    { key: "kai", label: "Tanya Ajax", icon: MessageCircle, tint: T.lavenderDeep },
     { key: "thrift", label: "Thrift", icon: Store, tint: T.coral },
     { key: "community", label: "Komunitas", icon: Users, tint: "#8FB8DE" },
   ];
@@ -98,14 +98,14 @@ export function HomeScreen({ profile, items, swapRequests, onGo }) {
           </div>
         </div>
 
-        {/* Kai teaser */}
+        {/* Ajax teaser */}
         <button onClick={() => go("kai")} className="cc-press rounded-3xl p-4 flex items-center gap-3 text-left" style={{ background: `linear-gradient(120deg, ${T.mintLight}, #F3EEFB)` }}>
           <span className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style={{ background: `linear-gradient(135deg, ${T.mint}, ${T.lavender})` }}>
             <MessageCircle size={22} color={T.navy} />
           </span>
           <div className="flex-1">
             <p className="font-bold text-sm" style={{ color: T.navy }}>Bingung mau pakai apa?</p>
-            <p className="text-xs" style={{ color: T.navySoft }}>Tanya Kai — stylist pribadimu, siap 24/7.</p>
+            <p className="text-xs" style={{ color: T.navySoft }}>Tanya Ajax — stylist pribadimu, siap 24/7.</p>
           </div>
           <ChevronRight size={18} color={T.navySoft} />
         </button>

@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { RefreshCw, Sparkles, Heart, Shirt, Check, Lightbulb, Sun, Cloud, CloudRain, TrendingUp, MapPin } from "lucide-react";
+import { RefreshCw, Sparkles, Heart, Shirt, Check, Lightbulb, Sun, Cloud, CloudRain, TrendingUp, MapPin, Wand2, Dices, GraduationCap, Briefcase, Coffee, Heart as HeartIcon, PartyPopper, Dumbbell } from "lucide-react";
 import { T, fontDisplay } from "../../theme/tokens";
 import { Header, Card, Chip, Button, EmptyState } from "../../components/ui";
 import { QuotaBanner } from "../../components/QuotaBanner";
@@ -16,6 +16,21 @@ import { sound } from "../../lib/sound";
 
 const WEATHER_ICON = { panas: Sun, sejuk: Cloud, hujan: CloudRain };
 
+const rand = (a) => a[Math.floor(Math.random() * a.length)];
+
+/* Pilih cepat: satu ketuk set tempat+mood, tanpa perlu atur banyak opsi (quiz). */
+const QUICK_PICKS = [
+  { label: "Ke Kampus", icon: GraduationCap, place: "Kampus", mood: "Santai" },
+  { label: "Kerja", icon: Briefcase, place: "Kantor", mood: "Profesional" },
+  { label: "Nongkrong", icon: Coffee, place: "Hangout/Café", mood: "Santai" },
+  { label: "Kencan", icon: HeartIcon, place: "Date", mood: "Romantis" },
+  { label: "Formal", icon: PartyPopper, place: "Acara Formal", mood: "Profesional" },
+  { label: "Olahraga", icon: Dumbbell, place: "Gym", mood: "Playful" },
+];
+
+const HYPE = ["Clean dan effortless.", "Berani beda, tetap kamu.", "Look ini bakal dilirik.", "Simpel tapi standout.", "Cocok banget sama vibe-mu.", "Mix andalan yang gak pernah salah.", "Fresh, tinggal gas.", "Ini kamu banget."];
+const SHUFFLE_MSGS = ["Ngubek lemari…", "Mixing & matching…", "Nyari yang paling kamu…", "Meracik look baru…", "Nge-remix isi lemarimu…"];
+
 export function OutfitScreen({ items, setItems, likes, setLikes, plan, usage, useQuota, adsLeft, watchAd, onUpgrade }) {
   const [showAds, setShowAds] = useState(false);
   const [weatherKey, setWeatherKey] = useState("sejuk");
@@ -27,6 +42,8 @@ export function OutfitScreen({ items, setItems, likes, setLikes, plan, usage, us
   const [shuffleSeed, setShuffleSeed] = useState(0);
   const [worn, setWorn] = useState(null);
   const [look, setLook] = useState(0);
+  const [shuffling, setShuffling] = useState(false);
+  const [hype, setHype] = useState(HYPE[0]);
   const left = remaining(usage, "outfit_generate", plan);
 
   // cuaca real lokasi user → set default weatherKey (tetap bisa dioverride)
@@ -36,11 +53,31 @@ export function OutfitScreen({ items, setItems, likes, setLikes, plan, usage, us
     return () => { alive = false; };
   }, []);
 
-  const doGenerate = () => { sound.whoosh(); setShuffleSeed((s) => s + 1); setWorn(null); setLook(0); };
+  // Generate ulang yang "fun": animasi shuffle singkat + pesan meracik acak,
+  // lalu reveal look baru dengan hype line yang berganti-ganti + suara.
+  const doGenerate = () => {
+    if (shuffling) return;
+    sound.whoosh();
+    setShuffling(true);
+    setTimeout(() => {
+      setShuffleSeed((s) => s + 1);
+      setWorn(null); setLook(0);
+      setHype(rand(HYPE));
+      setShuffling(false);
+      sound.coin();
+    }, 780);
+  };
   const regenerate = () => {
     if (plan === "premium") { doGenerate(); return; }
     if (left > 0) { if (useQuota("outfit_generate", "Outfit Generate tanpa batas")) doGenerate(); return; }
     setShowAds(true); // kuota habis → tawarkan nonton iklan untuk generate gratis
+  };
+
+  // Pilih cepat: set tempat+mood sekali ketuk (combos otomatis recompute).
+  const quickPick = (q) => {
+    sound.select();
+    setPlace(q.place); setMood(q.mood); setStyleGlobal("Semua"); setColorPref(null);
+    setLook(0); setHype(rand(HYPE));
   };
 
   const { combos: outfits, partial } = useMemo(
@@ -97,6 +134,25 @@ export function OutfitScreen({ items, setItems, likes, setLikes, plan, usage, us
       </div>
 
       <div className="px-4 flex flex-col gap-3">
+        {/* Pilih cepat — satu ketuk, tanpa perlu atur banyak opsi */}
+        <Card>
+          <div className="flex items-center gap-1.5 mb-2">
+            <Wand2 size={14} color={T.lavenderDeep} />
+            <p className="text-xs font-bold" style={{ color: T.navy }}>Pilih cepat <span style={{ fontWeight: 400, color: T.navySoft }}>· atau atur manual di bawah</span></p>
+          </div>
+          <div className="flex gap-2 overflow-x-auto cc-noscroll pb-1">
+            {QUICK_PICKS.map((q) => {
+              const on = place === q.place && mood === q.mood;
+              return (
+                <button key={q.label} onClick={() => quickPick(q)} className="cc-press shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-2xl text-sm font-semibold whitespace-nowrap border"
+                  style={{ background: on ? T.navy : T.white, borderColor: on ? T.navy : "#E3E6F0", color: on ? "#fff" : T.navy }}>
+                  <q.icon size={15} color={on ? T.mint : T.lavenderDeep} /> {q.label}
+                </button>
+              );
+            })}
+          </div>
+        </Card>
+
         {/* weather banner (real) */}
         <div className="rounded-3xl p-4 flex items-center justify-between cc-gradient-move" style={{ background: `linear-gradient(120deg, ${T.mintLight}, #F3EEFB)` }}>
           <div className="flex items-center gap-3">
@@ -155,21 +211,21 @@ export function OutfitScreen({ items, setItems, likes, setLikes, plan, usage, us
       <div className="px-4 mt-4">
         {!enough ? (
           <EmptyState icon={Sparkles} title="Lemari belum cukup lengkap"
-            subtitle="Scan minimal 1 atasan dan 1 bawahan dulu supaya Kai bisa meracik outfit." action={null} />
+            subtitle="Scan minimal 1 atasan dan 1 bawahan dulu supaya Ajax bisa meracik outfit." action={null} />
         ) : (
           <>
             <div className="flex items-center justify-between mb-3 gap-2">
               <p className="font-bold text-lg truncate" style={{ fontFamily: theme?.font || fontDisplay.fontFamily, color: theme?.accent || T.navy, textTransform: theme?.upper ? "uppercase" : "none", letterSpacing: theme?.tracking || "normal", fontStyle: theme?.italic ? "italic" : "normal" }}>
                 {theme ? styleGlobal : "Diproyeksikan buatmu"}
               </p>
-              <button onClick={regenerate} className="cc-press flex items-center gap-1 text-sm font-semibold shrink-0" style={{ color: T.lavenderDeep }}>
-                <RefreshCw size={14} /> Generate ulang
+              <button onClick={regenerate} disabled={shuffling} className="cc-press flex items-center gap-1.5 text-sm font-bold shrink-0 px-3.5 py-2 rounded-full disabled:opacity-80" style={{ color: "#fff", background: `linear-gradient(120deg, ${T.lavenderDeep}, ${T.coral})`, boxShadow: "0 8px 18px -10px rgba(139,111,206,.7)" }}>
+                <Dices size={15} className={shuffling ? "animate-spin" : ""} /> {shuffling ? "Meracik…" : "Acak lagi"}
               </button>
             </div>
             {partial && (
               <div className="flex items-start gap-2 px-3 py-2.5 rounded-xl mb-3" style={{ background: "#F3EEFB" }}>
                 <Lightbulb size={15} color={T.lavenderDeep} className="mt-0.5 shrink-0" />
-                <p className="text-xs" style={{ color: T.navy }}>Item bergaya {styleGlobal} belum lengkap — ini versi terdekat dari lemarimu. Tanya Kai untuk melengkapi (thrift/swap dulu ya!).</p>
+                <p className="text-xs" style={{ color: T.navy }}>Item bergaya {styleGlobal} belum lengkap — ini versi terdekat dari lemarimu. Tanya Ajax untuk melengkapi (thrift/swap dulu ya!).</p>
               </div>
             )}
             {(() => {
@@ -189,8 +245,17 @@ export function OutfitScreen({ items, setItems, likes, setLikes, plan, usage, us
                       <Heart size={18} color={T.coral} fill={likes.includes(likeKey(combo)) ? T.coral : "none"} />
                     </button>
                     <OutfitBoard items={[combo.top, combo.outer, combo.bottom, combo.shoe, combo.acc]} />
+                    {shuffling && (
+                      <div className="absolute inset-0 z-20 flex flex-col items-center justify-center" style={{ background: "rgba(255,255,255,.72)", backdropFilter: "blur(2px)" }}>
+                        <Dices size={42} color={T.lavenderDeep} className="animate-spin" />
+                        <ShuffleText />
+                      </div>
+                    )}
                   </div>
                   <div className="px-4 pb-4 pt-3">
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full mb-2 cc-pop-in" style={{ background: T.mintLight }}>
+                      <Sparkles size={12} color={T.lavenderDeep} /><span className="text-[11px] font-bold" style={{ color: T.navy }}>{hype}</span>
+                    </div>
                     <p className="text-xs mb-3" style={{ color: T.navySoft }}>{combo.reason}</p>
                     <Button full variant={worn === combo.id ? "dark" : "primary"} icon={worn === combo.id ? Check : Shirt} onClick={() => markWorn(combo)}>
                       {worn === combo.id ? "Sudah dipakai hari ini" : "Pakai outfit ini"}
@@ -211,4 +276,11 @@ export function OutfitScreen({ items, setItems, likes, setLikes, plan, usage, us
       )}
     </div>
   );
+}
+
+/* Pesan "meracik" yang berganti-ganti selama animasi generate ulang. */
+function ShuffleText() {
+  const [i, setI] = useState(0);
+  useEffect(() => { const t = setInterval(() => setI((v) => (v + 1) % SHUFFLE_MSGS.length), 260); return () => clearInterval(t); }, []);
+  return <p className="text-sm font-bold mt-3" style={{ ...fontDisplay, color: T.navy }}>{SHUFFLE_MSGS[i]}</p>;
 }

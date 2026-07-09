@@ -11,7 +11,7 @@ export const PREMIUM_PRICE = 30000;
 export const PREMIUM_BENEFITS = [
   { icon: Camera, title: "Scan tanpa batas", desc: "Free dibatasi 30 item" },
   { icon: Sparkles, title: "Outfit Generate unlimited", desc: "Free 3×/hari" },
-  { icon: MessageCircle, title: "Chat Kai unlimited + prioritas", desc: "Free 10 pesan/hari" },
+  { icon: MessageCircle, title: "Chat Ajax unlimited + prioritas", desc: "Free 10 pesan/hari" },
   { icon: Shirt, title: "Semua style Mood×Tempat×Style", desc: "Free 3 style dasar" },
   { icon: Repeat, title: "10 listing swap aktif + boost", desc: "Free 2 listing" },
   { icon: BarChart3, title: "Insight lengkap + ekspor data", desc: "Free versi ringkas" },
