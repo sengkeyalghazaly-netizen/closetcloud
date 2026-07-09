@@ -131,7 +131,7 @@ export default function App() {
         {route === "kai" && <KaiScreen onBack={back} items={items} setItems={setItems} chat={chat} setChat={setChat} plan={plan} usage={usage} useQuota={useQuota} onUpgrade={() => setPaywall({ reason: "Chat Kai tanpa batas" })} />}
         {route === "scheduler" && <SchedulerScreen onBack={back} items={items} schedule={schedule} setSchedule={setSchedule} />}
         {route === "analytics" && <AnalyticsScreen onBack={back} items={items} />}
-        {route === "dashboard" && <DashboardScreen onBack={back} items={items} swapRequests={swapRequests} />}
+        {route === "dashboard" && <DashboardScreen onBack={back} onOpen={navTo} items={items} swapRequests={swapRequests} />}
 
         <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto flex justify-around items-center py-2.5 px-1" style={{ background: dark ? "#252A4D" : T.white, borderTop: dark ? "1px solid #333858" : "1px solid #E3E6F0", boxShadow: "0 -8px 24px -18px rgba(27,31,59,.4)" }}>
           {NAV.map((t) => {

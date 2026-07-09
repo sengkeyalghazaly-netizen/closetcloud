@@ -1,11 +1,12 @@
 import { useState, useEffect, useMemo } from "react";
-import { Camera, Sparkles, Repeat, MessageCircle, Store, Users, Sun, Cloud, CloudRain, ChevronRight, Bell, ArrowRight } from "lucide-react";
+import { Camera, Sparkles, Repeat, MessageCircle, Store, Users, Sun, Cloud, CloudRain, ChevronRight, BarChart3, Leaf, ArrowRight } from "lucide-react";
 import { T, fontDisplay } from "../../theme/tokens";
 import { Card, Button } from "../../components/ui";
 import { Logo } from "../../components/illustrations";
 import { computeStyleScore } from "../../lib/scoring";
 import { generateOutfits } from "../../lib/outfits";
 import { fetchWeather } from "../../lib/weather";
+import { CARBON_PER_SWAP, CARBON_PER_REWEAR, impactLevel } from "../../lib/carbon";
 import { sound } from "../../lib/sound";
 
 const WEATHER_ICON = { panas: Sun, sejuk: Cloud, hujan: CloudRain };
@@ -17,6 +18,9 @@ export function HomeScreen({ profile, items, swapRequests, onGo }) {
   const name = profile?.name || "kamu";
   const score = useMemo(() => computeStyleScore(items), [items]);
   const totalWears = items.reduce((s, i) => s + i.wearCount, 0);
+  const completedSwaps = (swapRequests || []).filter((r) => r.status === "selesai").length;
+  const carbonAvoided = Math.round(completedSwaps * CARBON_PER_SWAP + totalWears * CARBON_PER_REWEAR);
+  const impact = impactLevel(carbonAvoided);
   const todayOutfit = useMemo(() => generateOutfits(items, weather?.key || "sejuk", "Kuliah / kerja santai")[0], [items, weather]);
   const WIcon = WEATHER_ICON[weather?.key] || Sun;
   const hour = new Date().getHours();
@@ -44,8 +48,8 @@ export function HomeScreen({ profile, items, swapRequests, onGo }) {
             <p className="font-bold text-lg leading-none" style={{ ...fontDisplay, color: T.navy }}>{name}</p>
           </div>
         </div>
-        <button onClick={() => go("dashboard")} className="cc-press w-10 h-10 rounded-full flex items-center justify-center" style={{ background: T.white, boxShadow: "0 6px 16px -8px rgba(27,31,59,.25)" }}>
-          <Bell size={18} color={T.navy} />
+        <button onClick={() => go("dashboard")} aria-label="Style Insight" className="cc-press w-10 h-10 rounded-full flex items-center justify-center" style={{ background: T.white, boxShadow: "0 6px 16px -8px rgba(27,31,59,.25)" }}>
+          <BarChart3 size={18} color={T.navy} />
         </button>
       </div>
 
@@ -82,6 +86,21 @@ export function HomeScreen({ profile, items, swapRequests, onGo }) {
           <MiniStat label="Dipakai" value={totalWears} onClick={() => go("dashboard")} />
           <MiniStat label="Skor gaya" value={Math.round(score.overall)} onClick={() => go("community")} />
         </div>
+
+        {/* Insight highlight — di-tonjolkan biar gampang ditemukan & fun */}
+        <button onClick={() => go("dashboard")} className="cc-press cc-sheen rounded-3xl p-4 flex items-center gap-3 text-left" style={{ background: `linear-gradient(120deg, ${T.mint}, ${T.lavender})` }}>
+          <span className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style={{ background: "rgba(255,255,255,.4)" }}>
+            <Leaf size={22} color={T.navy} />
+          </span>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <p className="font-bold text-sm" style={{ color: T.navy }}>Insight gayamu</p>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold" style={{ background: "rgba(255,255,255,.75)", color: T.navy }}>{impact.label}</span>
+            </div>
+            <p className="text-xs mt-0.5" style={{ color: "rgba(27,31,59,.75)" }}>{carbonAvoided} kg CO2e dihindari · {totalWears}× pakai — lihat dampak & nilai lemarimu.</p>
+          </div>
+          <ChevronRight size={18} color={T.navy} />
+        </button>
 
         {/* shortcuts */}
         <div>
